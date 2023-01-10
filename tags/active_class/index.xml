@@ -2,37 +2,37 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>active_class on Jeds Digital Home</title>
-    <link>/tags/active_class/</link>
+    <link>/website_copy/tags/active_class/</link>
     <description>Recent content in active_class on Jeds Digital Home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="/tags/active_class/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="/website_copy/tags/active_class/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Data Management with SQL</title>
-      <link>/classes/data351/data351/</link>
+      <link>/website_copy/classes/data351/data351/</link>
       <pubDate>Sun, 28 Aug 2022 00:00:00 +0000</pubDate>
       
-      <guid>/classes/data351/data351/</guid>
+      <guid>/website_copy/classes/data351/data351/</guid>
       <description>General Information Welcome to DATA 351: Data Management with SQL! This is my personal website, and will be the main location where I post things throughout the semester. Anything posted elsewhere will be clearly indicated and announced in class! In general this should be your one-stop-shop for everything class related.
 Syllabus If you need a quick reference or review, you can find my syllabus here: Syllabus The Book We will be using this semester is Practical SQL: A Beginner&amp;rsquo;s Guide to Storytelling with Data by Anthony DeBarros.</description>
     </item>
     
     <item>
       <title>Fundamentals of Data Engineering</title>
-      <link>/classes/data503/data503/</link>
+      <link>/website_copy/classes/data503/data503/</link>
       <pubDate>Sun, 28 Aug 2022 00:00:00 +0000</pubDate>
       
-      <guid>/classes/data503/data503/</guid>
+      <guid>/website_copy/classes/data503/data503/</guid>
       <description>General Information Welcome to DATA 503: Fundamentals of Data Engineering! This is my personal website, and will be the main location where I post things throughout the semester. Anything posted elsewhere will be clearly indicated and announced in class! In general this should be your one-stop-shop for everything class related.
 Syllabus If you need a quick reference or review, you can find my syllabus here: Syllabus The Book We will be using this semester is Practical SQL: A Beginner&amp;rsquo;s Guide to Storytelling with Data by Anthony DeBarros.</description>
     </item>
     
     <item>
       <title>Intro to Programming with Python</title>
-      <link>/classes/cs151/cs151/</link>
+      <link>/website_copy/classes/cs151/cs151/</link>
       <pubDate>Sun, 28 Aug 2022 00:00:00 +0000</pubDate>
       
-      <guid>/classes/cs151/cs151/</guid>
+      <guid>/website_copy/classes/cs151/cs151/</guid>
       <description>General Information Welcome to CS 151: Intro to Programming with Python! This is my personal website, and will be the main location where I post things throughout the semester. Anything posted elsewhere will be clearly indicated and announced in class! In general this should be your one-stop-shop for everything class related.
 Syllabus If you need a quick reference or review, you can find my syllabus here: Syllabus The Book We will be using the reader written by Professor Eric Roberts this semester.</description>
     </item>

@@ -2,57 +2,57 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>test on Jeds Digital Home</title>
-    <link>/tags/test/</link>
+    <link>/website_copy/tags/test/</link>
     <description>Recent content in test on Jeds Digital Home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 Mar 2021 00:00:00 +0000</lastBuildDate><atom:link href="/tags/test/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 17 Mar 2021 00:00:00 +0000</lastBuildDate><atom:link href="/website_copy/tags/test/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Test Preparation</title>
-      <link>/classes/cs151/testprep/</link>
+      <link>/website_copy/classes/cs151/testprep/</link>
       <pubDate>Wed, 17 Mar 2021 00:00:00 +0000</pubDate>
       
-      <guid>/classes/cs151/testprep/</guid>
+      <guid>/website_copy/classes/cs151/testprep/</guid>
       <description>
 Midterm [Learning Objectives] - A good summary of what you should feel decent about going into the test. Practice Exam 1 - [Test] [Solutions] Practice Exam 2 - [Test] [Solutions] Final [Learning Objectives] - A summary of concepts from the second half of the semester. Practice Exam 1 - [Test] [Solutions] Practice Exam 2 - [Test] [Solutions] </description>
     </item>
     
     <item>
       <title>Test Preparation</title>
-      <link>/classes/data351/testprep/</link>
+      <link>/website_copy/classes/data351/testprep/</link>
       <pubDate>Wed, 17 Mar 2021 00:00:00 +0000</pubDate>
       
-      <guid>/classes/data351/testprep/</guid>
+      <guid>/website_copy/classes/data351/testprep/</guid>
       <description>
 Test 1 [Study Guide] [Solutions] [Old Test] [Solutions] Test 2 [Study Guide] [Solutions] [Old Test] [Solutions] Final [Study Guide] [Solutions] [Old Test] [Solutions] </description>
     </item>
     
     <item>
       <title>Test Preparation</title>
-      <link>/classes/data503/testprep/</link>
+      <link>/website_copy/classes/data503/testprep/</link>
       <pubDate>Wed, 17 Mar 2021 00:00:00 +0000</pubDate>
       
-      <guid>/classes/data503/testprep/</guid>
+      <guid>/website_copy/classes/data503/testprep/</guid>
       <description>
 Midterm [Study Materials] [Solutions] [Old Test] [Solutions] Note that this exam covers some slightly different theoretical material than what we have covered in class this semester, and thus might include some content that will not be on your exam, and not include some material that will be on your exam </description>
     </item>
     
     <item>
       <title>Test Preparation</title>
-      <link>/classes/phys110/testprep/</link>
+      <link>/website_copy/classes/phys110/testprep/</link>
       <pubDate>Fri, 21 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>/classes/phys110/testprep/</guid>
+      <guid>/website_copy/classes/phys110/testprep/</guid>
       <description>
 Equation Sheet Test 1 Test Review -- [Problems] [Solutions] Old Test -- [Problems] [Solutions] Test 2 Test Review -- [Problems] [Solutions] Old Test -- [Problems] [Solutions] Test 3 Test Review -- [Problems] [Solutions] Old Test -- [Problems] [Solutions] Final New Content Review -- [Problems] [Solutions] Old Final -- [Problems] [Solutions] We did not get a chance to talk about other galaxy types this semester, so ignore Problem 13! </description>
     </item>
     
     <item>
       <title>Test Preparation</title>
-      <link>/classes/phys222/testprep/</link>
+      <link>/website_copy/classes/phys222/testprep/</link>
       <pubDate>Fri, 21 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>/classes/phys222/testprep/</guid>
+      <guid>/website_copy/classes/phys222/testprep/</guid>
       <description>
 Test 1 Old Test -- [Test] [Solutions] Review Questions -- [Questions and Solutions] Test 2 Old Test -- [Test] [Solutions] Review Questions -- [Questions and Solutions] </description>
     </item>

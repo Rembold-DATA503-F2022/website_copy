@@ -2,80 +2,80 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Jeds Digital Home</title>
-    <link>/tags/</link>
+    <link>/website_copy/tags/</link>
     <description>Recent content in Tags on Jeds Digital Home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="/website_copy/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>active_class</title>
-      <link>/tags/active_class/</link>
+      <link>/website_copy/tags/active_class/</link>
       <pubDate>Sun, 28 Aug 2022 00:00:00 +0000</pubDate>
       
-      <guid>/tags/active_class/</guid>
+      <guid>/website_copy/tags/active_class/</guid>
       <description></description>
     </item>
     
     <item>
       <title>hw</title>
-      <link>/tags/hw/</link>
+      <link>/website_copy/tags/hw/</link>
       <pubDate>Sun, 28 Aug 2022 00:00:00 +0000</pubDate>
       
-      <guid>/tags/hw/</guid>
+      <guid>/website_copy/tags/hw/</guid>
       <description></description>
     </item>
     
     <item>
       <title>test</title>
-      <link>/tags/test/</link>
+      <link>/website_copy/tags/test/</link>
       <pubDate>Wed, 17 Mar 2021 00:00:00 +0000</pubDate>
       
-      <guid>/tags/test/</guid>
+      <guid>/website_copy/tags/test/</guid>
       <description></description>
     </item>
     
     <item>
       <title>slides</title>
-      <link>/tags/slides/</link>
+      <link>/website_copy/tags/slides/</link>
       <pubDate>Tue, 19 Jan 2021 00:00:00 +0000</pubDate>
       
-      <guid>/tags/slides/</guid>
+      <guid>/website_copy/tags/slides/</guid>
       <description></description>
     </item>
     
     <item>
       <title>labs</title>
-      <link>/tags/labs/</link>
+      <link>/website_copy/tags/labs/</link>
       <pubDate>Thu, 05 Sep 2019 00:00:00 +0000</pubDate>
       
-      <guid>/tags/labs/</guid>
+      <guid>/website_copy/tags/labs/</guid>
       <description></description>
     </item>
     
     <item>
       <title>inactive_class</title>
-      <link>/tags/inactive_class/</link>
+      <link>/website_copy/tags/inactive_class/</link>
       <pubDate>Thu, 17 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>/tags/inactive_class/</guid>
+      <guid>/website_copy/tags/inactive_class/</guid>
       <description></description>
     </item>
     
     <item>
       <title>project</title>
-      <link>/tags/project/</link>
+      <link>/website_copy/tags/project/</link>
       <pubDate>Fri, 21 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>/tags/project/</guid>
+      <guid>/website_copy/tags/project/</guid>
       <description></description>
     </item>
     
     <item>
       <title>comp</title>
-      <link>/tags/comp/</link>
+      <link>/website_copy/tags/comp/</link>
       <pubDate>Wed, 29 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>/tags/comp/</guid>
+      <guid>/website_copy/tags/comp/</guid>
       <description></description>
     </item>
     

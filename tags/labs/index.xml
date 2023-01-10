@@ -2,56 +2,56 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>labs on Jeds Digital Home</title>
-    <link>/tags/labs/</link>
+    <link>/website_copy/tags/labs/</link>
     <description>Recent content in labs on Jeds Digital Home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 05 Sep 2019 00:00:00 +0000</lastBuildDate><atom:link href="/tags/labs/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 05 Sep 2019 00:00:00 +0000</lastBuildDate><atom:link href="/website_copy/tags/labs/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>After-class Labs</title>
-      <link>/classes/cs151/labs/</link>
+      <link>/website_copy/classes/cs151/labs/</link>
       <pubDate>Thu, 05 Sep 2019 00:00:00 +0000</pubDate>
       
-      <guid>/classes/cs151/labs/</guid>
+      <guid>/website_copy/classes/cs151/labs/</guid>
       <description>
 Name Description </description>
     </item>
     
     <item>
       <title>In-class Labs</title>
-      <link>/classes/ids138/labs/</link>
+      <link>/website_copy/classes/ids138/labs/</link>
       <pubDate>Sun, 20 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>/classes/ids138/labs/</guid>
+      <guid>/website_copy/classes/ids138/labs/</guid>
       <description>
 Name Description </description>
     </item>
     
     <item>
       <title>Labs</title>
-      <link>/classes/phys222/lab/</link>
+      <link>/website_copy/classes/phys222/lab/</link>
       <pubDate>Wed, 29 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>/classes/phys222/lab/</guid>
+      <guid>/website_copy/classes/phys222/lab/</guid>
       <description>
 Lab 1 - Veterans Lab 1 - Recruits Lab 2 - Tape Portion Lab 2 - Glowscript Lab 3 - Glowscript Dipoles Lab 4 - Lists L4 - Ring L4 - Starter Code Lab 5 - Exp L5 - GS L5 - Starter Code Lab 6 - Exp L6 - Sheet L6 - GS L6 - Starter Code Lab 8 - Circuits L8 - Spreadsheet Lab 9 - Experiment L9 - Glowscript L9 - Starter Code Lab 10 - Experiment Lab 11 - Experiment </description>
     </item>
     
     <item>
       <title>Lab 3 Imagery</title>
-      <link>/classes/phys110/lab3/</link>
+      <link>/website_copy/classes/phys110/lab3/</link>
       <pubDate>Mon, 20 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>/classes/phys110/lab3/</guid>
+      <guid>/website_copy/classes/phys110/lab3/</guid>
       <description> Figure 1: Located at 19.5099&amp;deg;N, 155.5256&amp;deg;W Figure 2: Located at 28.1129&amp;deg;N, 85.9812&amp;deg;E Figure 3: Located at 36.6064&amp;deg;N, 117.1141&amp;deg;W Figure 4: Located at 51.4007&amp;deg;N, 68.7219&amp;deg;W </description>
     </item>
     
     <item>
       <title>Labs</title>
-      <link>/classes/phys110/labs/</link>
+      <link>/website_copy/classes/phys110/labs/</link>
       <pubDate>Mon, 20 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>/classes/phys110/labs/</guid>
+      <guid>/website_copy/classes/phys110/labs/</guid>
       <description>
 Name Description </description>
     </item>
