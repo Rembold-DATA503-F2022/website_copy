@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Jed Rembold">
+  <title>Shell and Joins</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../html_srcs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../html_srcs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: 1;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../html_srcs/revealjs/../css/theme/nord_light.css" id="theme">
+  <link rel="stylesheet" href="../html_srcs/revealjs/../css/highlight/nord.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide">
+  <h1 class="title">Shell and Joins</h1>
+  <p class="author">Jed Rembold</p>
+  <p class="date">Wednesday, September 21, 2022</p>
+</section>
+
+<section id="announcements" class="slide level2">
+<h2>Announcements</h2>
+<ul>
+<li>Your third homework is due tomorrow night!
+<ul>
+<li>I’m still working on feedback</li>
+</ul></li>
+<li>Polling: <a
+href="http://rembold-class.ddns.net">rembold-class.ddns.net</a></li>
+<li>For next week, read:
+<ul>
+<li>DeBarros: Ch 7</li>
+</ul></li>
+</ul>
+<!--
+## The Big Picture
+![Storage and Retrieval Island](../images/ch3_island.png){width=60%}
+
+
+## Why so technical?
+> "On a most fundamental level, a database needs to do two things: when you give it some data, it should store the data, and when you ask it again later, it should give the data back to you"
+
+- Why should a data engineer care about the ins and outs of database storage and retrieval?
+  - **Not** so you can try to design better storage systems from scratch
+  - _So you can choose a storage engine to match your needs_
+    - A real focus here is on knowing just enough of the field and terminology so that you could make informed decisions and understand documentation that might help you make those decisions.
+
+
+## A case of indexing
+- Writing data to storage and reading the data back from storage frequently have very different needs
+- Most methods will enact tradeoffs between the two
+  - Storing something quickly will likely make it more difficult to find later
+    - Example: Tossing a book into an empty spot on your bookcase
+  - Storing something so that it can be quickly found likely takes longer
+    - Example: Placing your book in the alphabetically correct location by author
+- Using an _index_ will generally assist with retrieval, but costs time on writes to update the index
+  - Often only some columns will be indexed for fast retrieval
+
+
+## Beavers Love them
+::::::cols
+::::col
+- A _log_ in a database sense is an **append-only** sequence of records
+- Updated records just have new values assigned later in the log
+- Most recent entries to the log have priority
+::::
+
+::::col
+![A Log](../images/db_log.png)
+
+::::
+::::::
+
+
+## #Hash Indexing
+- Stores key-value pairs, where the key is used to determine a _hash_
+- Imagine a hash as a sign that says: "Look right here for this value"
+- Log of transactions and values are stored on disk, but the hash-map is stored in memory
+- When a log gets too large, a new one is started and the old log is compacted
+  - New log segment gets a new hash-map in memory
+  - Logs are later merged to further compact them
+- Pros: sequential writes are good! Crash recovery is simple
+- Cons: All the hash maps need to fit in memory. Range queries inefficient
+
+
+## SSTables
+- Still a form of log, so append-only
+- Keys are stored in segments in sorted order
+
+![Example SSTable structure$^1$](../images/sstable.png)
+
+
+## LSM-Tree: Writing
+- A _log-structure merge-tree_ stores new writes initially in a _memtable_
+- The memtable is really a tree structure that sorts the keys as they come in
+- When the tree gets too large, the keys are flushed to a new SSTable on disk
+
+![LSM to SSTable$^1$](../images/lsm_to_sstable.png){width=70%}
+
+## LSM-Tree: Reading
+- Would normally still look for a corresponding key in the most recent segment
+- Segments can often use an in-memory _sparse index_ that takes advantage of the ordered state of the keys for faster look-ups
+
+![Improving finding speed with a sparse index$^1$](../images/sparse_index.png)
+
+
+## LSM Cost/Benefit
+- Pros
+  - Faster look-ups owing to ordered keys
+  - Not all keys need to exist in memory
+  - Works very well for write-heavy situations, as it only performs sequential writes (which require less disk scanning)
+- Cons
+  - A crash would lose all the data currently in the memtable that hasn't been written to an SSTable
+    - Can also keep an unordered hash table log on disk of all writes whose only existence is to restore the memtable in case of crash
+  - Searching for files not in the database still takes a long time as all segments must be searched
+    - Using _bloom filters_ can help by immediately reporting if the key is not in the database
+
+
+## B-Trees
+- Most widely used storage architecture
+- Constrains segments of key-value pairings by size (often around 4 KB)
+- Keys can either point to the value in memory, or they can point to another segment
+  - Segments pointing to other segments is where the tree structure comes in
+
+
+## B-Tree Look-up
+![Showing the structure and looking up a key in a B-Tree](../images/b-tree-loopup.png){width=80%}
+
+## B-Tree Writing
+- The tree is traversed and the key is attempted to be found
+  - If it is, the reference to the value is change **in place**
+  - If not, the key and value are added to that correct segment
+- If a segment is full (fixed size remember), then it is split into two new segments, each half full.
+  - This also forces the parent segment to need to be updated (and possibly split)
+
+
+## B-Tree Cost/Benefit
+- Pros
+  - Most values can be accessed in less than 4 segments, making for **very fast read speeds**
+    - Also leads to more predictable response times
+  - Store each key in only one location, so less chance of competing processes getting confused
+- Cons
+  - Crashes mid-write can be highly problematic
+    - Often keeps a _write-ahead log_ of what is going to be done in case of crash, but this doubles the amount to be written
+  - More easily fragment as a result of small amounts of space left between segments
+
+
+## Different Use Cases
+- Large-scale differences in how databases will be used
+- OLTP: Online Transaction Processing
+- OLAP: Online Analytic Processing
+
+![View of a typical pipeline](../images/oltp_vs_olap.png){width=50%}
+
+
+## Transaction vs Analytics
+
+| Property    | Transaction Processing (OLTP)                | Analytic Processing (OLAP)              |
+|-------------|----------------------------------------------|-----------------------------------------|
+| Read trend  | Small number of records per query            | Aggregate over large numbers of records |
+| Write trend | Random-access, low latency writes from users | Bulk import (ELT)                       |
+| Used by     | End user or customers                        | Internal analyst                        |
+| Represents  | Latest state of data                         | History of data events                  |
+| Sizes       | Gigabytes to terabytes                       | Terabytes to petabytes                  |
+
+
+## Analytic Processing
+::::::cols
+::::col
+- Needs to focus on handling huge queries and aggregates
+  - Relational databases a good fit for this
+- Frequently end up with "star" or "snowflake" type schematics
+  - One central fact table with other surrounding tables containing details
+::::
+
+::::col
+![A simple star schema](../images/star_schema.png)
+
+::::
+::::::
+
+## Analytic Optimizations
+- Column-data stored together
+  - As opposed to OLTP solutions, where data from a row is stored together
+  - Most analysis looks at a single column over all rows, so this makes reads faster
+- Compressing column data as bitmaps
+  - Makes boolean searches very speedy, as binary arithmetic can be used
+- Computing _data cubes_
+  - Pre-computing common (and computationally heavy) aggregates in their own table
+
+## Back to the Big Picture
+![Storage and Retrieval Island](../images/ch3_island.png){width=60%}
+-->
+</section>
+<section id="why-a-terminal" class="slide level2">
+<h2>Why a Terminal?</h2>
+<ul>
+<li>A fair question, in an age of modern GUIs, might be “Why should I
+learn to work in a terminal?”
+<ul>
+<li>Can allow you to perform highly flexible operations that may not be
+built into a GUI</li>
+<li>Present on any computer you might come across</li>
+<li>Connecting to remote systems or servers is increasingly necessary to
+access data, and a terminal gives you the most flexible method of doing
+so</li>
+<li>Most programming languages or IDEs have an option to drop you to a
+terminal, so knowing enough to take full advantage is useful</li>
+</ul></li>
+</ul>
+</section>
+<section id="what-even-is-a-terminal" class="slide level2">
+<h2>What even is a terminal?</h2>
+<ul>
+<li>A terminal historically was a piece of hardware to interact with a
+computer: entering in information through a keyboard and outputting
+information through a monitor</li>
+<li>Computers have advanced much since then, so these days a
+<em>terminal emulator</em> is generally used to mimic the functionality
+of the older hardware terminals
+<ul>
+<li>Most systems have a terminal emulator of some sort built into the
+operating system
+<ul>
+<li><code class="python">terminal</code> on MacOS</li>
+<li><code class="python">cmd</code> on Windows</li>
+<li><code class="python">urxvt</code>,
+<code class="python">xterm</code>, etc. on Linux</li>
+</ul></li>
+</ul></li>
+<li>The terminal itself though is just the input-output structure. What
+appears in the terminal and how you interact with the terminal is
+determined by the <em>shell</em>
+<ul>
+<li>This is more important than it might seem. Two people running the
+same terminal emulator may see <strong>very</strong> different things on
+the screen</li>
+</ul></li>
+</ul>
+</section>
+<section id="the-shell" class="slide level2">
+<h2>The Shell</h2>
+<ul>
+<li>The <em>shell</em> dictates how the user interacts with the terminal
+<ul>
+<li>How commands are entered, what commands are allowed, how output is
+displayed, etc</li>
+<li>Basically the software that controls your interactions with the
+terminal</li>
+</ul></li>
+<li>There are many possible shells, some of which have been around a
+very long time, and many of which build on one another
+<ul>
+<li>Unix Shells
+<ul>
+<li>Bourne Shell (sh)</li>
+<li>C Shell (csh)</li>
+<li>Bourne Again Shell (bash)</li>
+<li>Friendly Interactive Shell (fish)</li>
+<li>Z Shell (zsh)</li>
+</ul></li>
+<li>Windows Shells
+<ul>
+<li>cmd.exe</li>
+<li>Powershell</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="shell-as-a-language" class="slide level2">
+<h2>Shell as a Language</h2>
+<ul>
+<li>Shells are interactive environments, just like you have the
+interactive environment in R</li>
+<li>This means that the commands you type into the shell are a
+programming language in and of themself!</li>
+<li>Why script in this language rather than something else like R or
+Python?
+<ul>
+<li>The shell commands are specifically tailored to working with
+existing files on your computer</li>
+<li>While you could achieve similar using other scripting languages, for
+this sort of use-case, shell scripting tends to be more
+straightforward</li>
+</ul></li>
+</ul>
+</section>
+<section id="bash" class="slide level2">
+<h2>BASH</h2>
+<ul>
+<li>We’ll focus on the BASH shell in this class</li>
+<li>Tends to be the default in most Linux environments, which means most
+servers you might connect to</li>
+<li>MacOS defaults to the ZSH shell, which is largely built on top of
+BASH and any that works in BASH will work in ZSH</li>
+<li>In Windows, it is more difficult to get a terminal with the BASH
+shell working.
+<ul>
+<li>There are <strong>considerable</strong> differences between Window’s
+default PowerShell and BASH though</li>
+<li>Best option is likely to install the Windows Subsystem for Linux
+(WSL2) which installs a lightweight virtual Linux environment on your
+system in which you can launch and run a BASH shell.</li>
+<li>Less great options would be trying to just work with online options
+like Cocalc or Replit</li>
+</ul></li>
+</ul>
+</section>
+<section id="navigating-the-shell" class="slide level2">
+<h2>Navigating the Shell</h2>
+<ul>
+<li>Shell commands always operate at a particular location in your file
+system</li>
+<li>Perhaps the most import commands then involve navigating around your
+file structure</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="python">pwd</code></td>
+<td>Prints out the current working directory</td>
+</tr>
+<tr class="even">
+<td><code class="python">cd arg</code></td>
+<td>Changes directory to the provided directory path</td>
+</tr>
+<tr class="odd">
+<td><code class="python">ls</code></td>
+<td>Lists the contents of the current directory</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Directories are separated by <code class="python">/</code> in
+Linux/Mac and <code class="python">\</code> on Windows</li>
+<li>Directory paths can be either <em>absolute</em> or <em>relative</em>
+<ul>
+<li>Absolute paths start from the <em>root</em> of your file system
+(<code class="python">/</code> on Mac or Linux, usually
+<code class="python">C:\</code> on Windows)</li>
+<li>Relative paths are determined from the current folder location
+<ul>
+<li><code class="python">..</code> refers to the parent directory</li>
+<li><code class="python">.</code> refers to the current directory</li>
+</ul></li>
+</ul></li>
+</ul>
+<!--
+## Recorded Demo
+
+<script id="asciicast-Fd9z1ahEAEKgM8RwPT5TNAIhC" src="https://asciinema.org/a/Fd9z1ahEAEKgM8RwPT5TNAIhC.js" data-size='big' data-loop='true' data-preload=1></script>
+-->
+</section>
+<section id="spaces-are-important" class="slide level2">
+<h2>Spaces are Important!</h2>
+<ul>
+<li>A common topic that you need to remember when working in a shell is
+that spaces have special meaning</li>
+<li>Most shells use a space to <strong>separate between a command and an
+argument/option, or between multiple arguments/options</strong></li>
+<li>If you need to refer to a file path with spaces, you must either
+quote it or “escape” the spaces with a backslash in front of each
+<ul>
+<li><code class="python">"/teaching/class/data science in the natural sciences"</code></li>
+<li><code class="python">/teaching/class/data\ science\ in\ the\ natural\ sciences</code></li>
+</ul></li>
+<li>This will be a recurring theme, so in general don’t go inserting
+arbitrary spaces in your shell commands</li>
+</ul>
+</section>
+<section id="copy-pasta" class="slide level2">
+<h2>Copy Pasta</h2>
+<ul>
+<li>Navigating your file structure is fun, but not useful by itself</li>
+<li>You have several commands available to you for creating, moving, or
+removing files:</li>
+</ul>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="python">mkdir arg</code></td>
+<td>Makes a new directory at the given argument location. Defaults to
+relative</td>
+</tr>
+<tr class="even">
+<td><code class="python">mv og_file new_file</code></td>
+<td>Moves the <code class="python">og_file</code> to the new location
+(and name) as <code class="python">new_file</code></td>
+</tr>
+<tr class="odd">
+<td><code class="python">cp og_file dup_file</code></td>
+<td>Copies the <code class="python">og_file</code> to the location (and
+name) of <code class="python">dup_file</code></td>
+</tr>
+<tr class="even">
+<td><code class="python">rm arg</code></td>
+<td>Removes the file given by <code class="python">arg</code> from the
+system. This bypasses any trashcan!</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="flags-and-options" class="slide level2">
+<h2>Flags and Options</h2>
+<ul>
+<li>Many commands have various options that can be toggled or set
+through the use of <em>flags</em></li>
+<li>A flag is a short command prefaced by a
+<code class="python">-</code> or <code class="python">--</code> that
+comes after a shell command
+<ul>
+<li>Short forms are usually a <code class="python">-</code> followed by
+a single character</li>
+</ul>
+<pre ><code class="bash">ls -s</code></pre>
+<ul>
+<li>Long forms are usually a <code class="python">--</code> followed by
+a longer term or phrase</li>
+</ul>
+<pre ><code class="bash">ls --size</code></pre>
+<ul>
+<li>Short form flags can be concatenated to effectively combine multiple
+flags</li>
+</ul>
+<pre ><code class="bash">ls -sh = ls -s -h</code></pre></li>
+<li>How do you know what options are available? The <em>help</em>
+option!</li>
+</ul>
+<pre ><code class="bash">ls --help</code></pre>
+</section>
+<section id="i-need-more-help" class="slide level2">
+<h2>I need more help!</h2>
+<ul>
+<li>Sometimes the help options for a command doesn’t give you quite
+enough information or details to understand what the option does</li>
+<li>Almost all BASH commands have built in help pages in the form of a
+<em>manual</em></li>
+<li>To access and read a manual, use the BASH command
+<code class="bash">man cmd</code>, where <code class="python">cmd</code>
+is the command you want to get information about</li>
+</ul>
+<pre ><code class="bash">man ls</code></pre>
+<ul>
+<li><code class="python">man</code> actually opens up the documentation
+in another program called <code class="python">less</code>, which allows
+you to scroll around and then press <code class="python">q</code> when
+done to return to your original screen</li>
+</ul>
+</section>
+<section id="practice" class="slide level2">
+<h2>Practice!</h2>
+<p>Choose a folder on your system that has a lot of files in it, and
+then see if you can achieve the following in the shell:</p>
+<ul>
+<li>navigate to that folder</li>
+<li>display the contents of that folder so that they:
+<ul>
+<li>Are ordered by size</li>
+<li>Display the size next to each file in human-readable format</li>
+<li>Include any “hidden” files (those that start with a
+<code class="python">.</code>)</li>
+<li>Use colors</li>
+</ul></li>
+</ul>
+</section>
+<section id="how-does-it-know" class="slide level2">
+<h2>How does it know?!</h2>
+<ul>
+<li>A fair question might be: how does the terminal know what all these
+programs are?
+<ul>
+<li>Or alternatively, how could <em>you</em> get a list of all the
+possible programs?</li>
+</ul></li>
+<li>Whenever the shell encounters a command, it looks in some
+predetermined locations to see if it finds a program with a matching
+name</li>
+<li>These locations are called your <em>path</em>
+<ul>
+<li>The path is just a colon delimited list of directory locations</li>
+<li>It is stored in a special variable called an <em>environment
+variable</em></li>
+</ul>
+<pre ><code class="bash">echo $PATH</code></pre></li>
+</ul>
+</section>
+<section id="environment-variables" class="slide level2">
+<h2>Environment Variables</h2>
+<ul>
+<li>The command <code class="python">echo</code> will generally print
+whatever argument comes after it to the screen</li>
+<li>We specify that we are interested in a particular variable value by
+prefacing that variable name with a dollar sign</li>
+<li>There are many common environment variables that are always defined
+and you have access to:</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Contains</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PATH</td>
+<td>The list of all directories searched for a command</td>
+</tr>
+<tr class="even">
+<td>USER</td>
+<td>The currently logged in user</td>
+</tr>
+<tr class="odd">
+<td>HOME</td>
+<td>The home directory of the current user</td>
+</tr>
+<tr class="even">
+<td>SHELL</td>
+<td>The current shell being used</td>
+</tr>
+<tr class="odd">
+<td>TERM</td>
+<td>The current terminal emulator being used</td>
+</tr>
+<tr class="even">
+<td>LANG</td>
+<td>The current language encoding</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="in-and-out" class="slide level2">
+<h2>In and Out</h2>
+<ul>
+<li>Programs have to primary “streams” of information associated with
+them:
+<ul>
+<li>an input stream, called <em>stdin</em></li>
+<li>an output stream, called <em>stdout</em></li>
+</ul></li>
+<li>Both generally work with sequences of bytes, or text</li>
+<li>By default, <code class="python">stdin</code> is your keyboard and
+<code class="python">stdout</code> is the screen being printed to</li>
+<li>We are actually allowed to “rewire” these inputs and outputs though!
+<ul>
+<li>Called <em>redirecting</em> and uses the
+<code class="python"><</code> and <code class="python">></code>
+commands</li>
+<li><code class="python"><</code> changes
+<code class="python">stdin</code> to be whatever comes after</li>
+<li><code class="python">></code> changes
+<code class="python">stdout</code> to be whatever comes after</li>
+</ul></li>
+</ul>
+</section>
+<section id="a-weird-cat" class="slide level2">
+<h2>A weird cat</h2>
+<ul>
+<li>The BASH <code class="python">cat</code> function concatenates any
+of its arguments together, sticking them together end to end, and
+outputs them to <code class="python">stdout</code>
+<ul>
+<li>If given filenames for arguments, for example, it will stick their
+contents together</li>
+<li><code class="python">cat</code> is frequently just used with a
+single argument to display it to the screen</li>
+</ul></li>
+<li>If given no arguments, <code class="python">cat</code> instead reads
+from <code class="python">stdin</code></li>
+<li>We can redirect any of these as we might see fit:</li>
+</ul>
+<pre ><code class="bash">cat > temp.txt
+cat < temp.txt
+cat < temp.txt > new.txt</code></pre>
+<ul>
+<li>Be aware that <code class="python">></code> <em>overwrites</em> the
+contents of a file if you redirect there. You can use
+<code class="python">>></code> to append the contents to a file if you
+prefer</li>
+</ul>
+</section>
+<section id="plumbing-time" class="slide level2">
+<h2>Plumbing Time</h2>
+<ul>
+<li>Because so many shell commands accept input from
+<code class="python">stdin</code> and output to
+<code class="python">stdout</code>, it can be very useful to take the
+output of one and pass it into another</li>
+<li>This could be done with intermediate files, but it more convenient
+to pass the information directly, using what are called
+<em>pipes</em></li>
+<li>Pipes utilize the pipe character <code class="python">|</code> and
+basically say: “take the <code class="python">stdout</code> from the
+left command and use it as the <code class="python">stdin</code> on the
+right command”</li>
+</ul>
+<pre ><code class="bash">ls | cat</code></pre>
+<ul>
+<li>You can chain as many pipes together as you like</li>
+<li>This is where the real flexibility of shell scripting comes into
+play! It allows you to combine many smaller tools effortlessly to
+achieve a final product</li>
+</ul>
+</section>
+<section id="practice-1" class="slide level2">
+<h2>Practice!</h2>
+<p>The <code class="python">wc</code> command stands for “word count”
+and will give you information about the number of words, characters or
+lines read in from a file or <code class="python">stdin</code>. Use this
+in conjunction with <code class="python">ls</code> to write the number
+of current objects in a folder to a file called
+<code class="python">obj_count.txt</code>. Don’t forget you can check
+the help flag or man page of <code class="python">wc</code> for some
+more information on how you can customize its output!</p>
+</section>
+<section id="break-time" class="slide level2">
+<h2>Break Time!</h2>
+<ul>
+<li>Stretch! Eat! Don’t think about data for half an hour!</li>
+</ul>
+</section>
+<section id="understanding-check" class="slide level2">
+<h2>Understanding Check</h2>
+<div class="cols">
+<div class="col">
+<p>Suppose you have a table of items with the schema shown below and
+wanted to find the most common difference between Price A and Price B.
+You are looking for bargains, so in the case of a tie, you’d like to
+know the biggest. Which query will deliver on your wish?</p>
+<pre ><code class="pgsql" style="font-size:.8em">CREATE TABLE rev (
+  "name" TEXT,
+  "pa" NUMERIC(4,2),
+  "pb" NUMERIC(4,2)
+);</code></pre>
+</div>
+<div class="col" style="flex-grow:1.2">
+<pre ><code class="pgsql answer" style="font-size:.6em" name="A">SELECT mode(pb - pa) FROM rev;</code></pre>
+<pre ><code class="pgsql answer" style="font-size:.6em" name="B">SELECT
+  mode() WITHIN GROUP (ORDER BY pb) -
+  mode() WITHIN GROUP (ORDER BY pa)
+FROM rev;</code></pre>
+<pre ><code class="pgsql answer" style="font-size:.6em" name="C">SELECT
+  mode() WITHIN GROUP (ORDER BY (pb-pa))
+FROM rev;</code></pre>
+<pre ><code class="pgsql answer" style="font-size:.6em" name="D">SELECT
+  mode() WITHIN GROUP (ORDER BY (pb-pa) DESC)
+FROM rev;</code></pre>
+</div>
+</div>
+</section>
+<section id="linking-tables" class="slide level2">
+<h2>Linking Tables</h2>
+<div class="cols">
+<div class="col">
+<ul>
+<li>Our whole idea of breaking apart data across multiple tables was
+prefaced on the fact that we could pull it back together when
+needed</li>
+<li>There is nothing special about the linkages: we can link any columns
+that we want</li>
+<li>The act of collecting data from multiple tables based on particular
+rows and columns is called a <em>join</em> in SQL</li>
+</ul>
+</div>
+<div class="col">
+<p><img data-src="../images/join-me-vader.jpg"
+style="width:100.0%" /></p>
+</div>
+</div>
+</section>
+<section id="creating-the-join" class="slide level2">
+<h2>Creating the Join</h2>
+<ul>
+<li>A join pulls information from multiple tables into a new table
+(since all queries return a table)</li>
+<li>The columns that are matched across tables are called
+<em>keys</em></li>
+<li>The general idea is then to:
+<ul>
+<li>Set up your selection as usual from a single table</li>
+<li>Join to that table another table</li>
+<li>Specifying what columns in each table will act as keys along with a
+conditional relating them
+<ul>
+<li>Most common condition is equality</li>
+</ul></li>
+</ul></li>
+</ul>
+<pre ><code class="pgsql" style="font-size:0.6em">SELECT * FROM table_a
+JOIN table_b
+ON table_a.key_col = table_b.key_col;</code></pre>
+</section>
+<section id="column-names" class="slide level2">
+<h2>Column Names</h2>
+<ul>
+<li>When you start refering to multiple table names in your query, you
+might get overlapping column names
+<ul>
+<li>Columns names must be unique <strong>within a table</strong> but
+might be the same <strong>across tables</strong></li>
+</ul></li>
+<li>To avoid ambiguity, you can preface a column name with the table it
+is coming from, separated by a period</li>
+<li>This is useful both for selecting the join key columns, but also for
+selecting particular columns you want out of the joined table</li>
+</ul>
+<pre ><code class="pgsql">SELECT tab1.name, tab1.age, tab2.name
+FROM tab1
+JOIN tab2 ON tab1.age = tab2.age;</code></pre>
+</section>
+<section id="inner-join" class="slide level2">
+<h2>(Inner) Join</h2>
+<ul>
+<li>The basic join only keeps rows from table 1 and table 2 that matched
+on the given column keys
+<ul>
+<li>This is also called an <em>inner join</em></li>
+</ul></li>
+<li>Any row in table 1 that had no counterpart in table 2 is left out
+<ul>
+<li>Identically for any row in table 2 that had no counterpart in table
+1</li>
+</ul></li>
+<li>The key take-away is that it keeps what was in <strong>both</strong>
+tables</li>
+<li>If a value appears twice in one table, it will be duplicated in the
+joined table as well
+<ul>
+<li>One reason that many times people try to join on columns that hold
+unique values, but not always necesarry</li>
+</ul></li>
+</ul>
+</section>
+<section id="inner-joins-visualized" class="slide level2">
+<h2>Inner Joins Visualized</h2>
+<div class="fig-container" data-file="../images/d3/InnerJoin.html" data-scroll="no", data-style="width:90%; display:inline;"></div>
+</section>
+<section id="left-and-right-join" class="slide level2">
+<h2>Left and Right Join</h2>
+<ul>
+<li>Sometimes, you don’t want to include <em>only</em> the rows that
+were in both table</li>
+<li>Maybe you want <strong>all</strong> the rows from one table, but
+joining the other data when it is available</li>
+<li>In these cases, you can use a <code class="python">LEFT JOIN</code>
+or <code class="python">RIGHT JOIN</code>
+<ul>
+<li><code class="python">LEFT JOIN</code> is decidedly the more common,
+and you can make any <code class="python">RIGHT JOIN</code> a
+<code class="python">LEFT JOIN</code> just by flipping the table
+ordering</li>
+</ul></li>
+<li>Rows still need to have the same number of columns, so
+<code class="python">NULL</code> values will be inserted for the
+secondary table columns if it is missing a match</li>
+</ul>
+</section>
+<section id="left-joins-visualized" class="slide level2">
+<h2>Left Joins Visualized</h2>
+<div class="fig-container" data-file="../images/d3/LeftJoin.html" data-scroll="no", data-style="width:90%; display:inline;"></div>
+</section>
+<section id="full-outer-join" class="slide level2">
+<h2>FULL OUTER JOIN</h2>
+<ul>
+<li>On occasion, you just want <em>all</em> the data from both tables
+<ul>
+<li>Matching where possible</li>
+<li>But keeping data from both left or right tables if no match</li>
+</ul></li>
+<li>In these cases, a <code class="python">FULL OUTER JOIN</code> will
+do what you want
+<ul>
+<li>Essentially does a <code class="python">LEFT JOIN</code> followed by
+a <code class="python">RIGHT JOIN</code> with the existing table</li>
+</ul></li>
+<li>Anything without a match is still represented with
+<code class="python">NULL</code> values</li>
+</ul>
+</section>
+<section id="outer-joins-visualized" class="slide level2">
+<h2>Outer Joins Visualized</h2>
+<div class="fig-container" data-file="../images/d3/OuterJoin.html" data-scroll="no", data-style="width:90%; display:inline;"></div>
+</section>
+<section id="cross-join" class="slide level2">
+<h2>Cross Join</h2>
+<ul>
+<li>Lastly, sometimes you want to see <em>all the possible</em>
+combinations between the rows of two tables
+<ul>
+<li>Sometimes called a <em>cartesian product</em></li>
+</ul></li>
+<li>A <code class="python">CROSS JOIN</code> will return a table of all
+of these possibilities</li>
+<li>Could imagine cross joining all of the values with the suits to
+generate your standard 52 card playing deck</li>
+<li>These can get very large very fast!
+<ul>
+<li>Do <strong>not</strong> run on tables of millions of rows!</li>
+</ul></li>
+</ul>
+</section>
+<section id="cross-joins-visualized" class="slide level2">
+<h2>Cross Joins Visualized</h2>
+<div class="fig-container" data-file="../images/d3/CrossJoin.html" data-scroll="no", data-style="width:90%; display:inline;"></div>
+</section>
+<section id="practice-2" class="slide level2">
+<h2>Practice</h2>
+<p><img data-src="../images/hw_assignment_schema.png"
+style="width:70.0%" /></p>
+<div class="center quip">
+<p>First names of students who have submitted any assignment?</p>
+</div>
+</section>
+<section id="practice-3" class="slide level2">
+<h2>Practice</h2>
+<p><img data-src="../images/hw_assignment_schema.png"
+style="width:70.0%" /></p>
+<div class="center quip">
+<p>Student ID and name of the assignment for all perfect scores?</p>
+</div>
+</section>
+<section id="practice-4" class="slide level2">
+<h2>Practice</h2>
+<p><img data-src="../images/hw_assignment_schema.png"
+style="width:70.0%" /></p>
+<div class="center quip">
+<p>Number of assignments with no submissions?</p>
+</div>
+</section>
+<section id="practice-5" class="slide level2">
+<h2>Practice</h2>
+<p><img data-src="../images/hw_assignment_schema.png"
+style="width:70.0%" /></p>
+<div class="center quip">
+<p>All combinations of students and homework assignments?</p>
+</div>
+</section>
+<section id="multiple-join-conditionals" class="slide level2">
+<h2>Multiple Join Conditionals</h2>
+<ul>
+<li>You are not limited to just a single condition in your
+<code class="python">ON</code> statement!</li>
+<li>You can chain multiple conditions together with
+<code class="python">AND</code> or <code class="python">OR</code>, just
+like a you with <code class="python">WHERE</code></li>
+<li>Just recall when comparing two rows that ALL the conditions must be
+true for the data to be included in the joined table</li>
+</ul>
+<pre ><code class="pgsql">SELECT *
+FROM table1
+JOIN table2
+ON table1.col1 = table2.col1 
+   AND table1.col2 > table2.col2;</code></pre>
+</section>
+<section id="table-aliases" class="slide level2">
+<h2>Table Aliases</h2>
+<ul>
+<li>Including long table names before each column name when refering to
+information from two different tables can get tedious</li>
+<li>You can define aliases for table names just like you can for column
+names!</li>
+<li>Syntax looks just like column aliases, using
+<code class="python">AS</code></li>
+<li>Can come immediately after you first reference a table name
+<ul>
+<li>Usually after a <code class="python">FROM</code> or
+<code class="python">JOIN</code> statement</li>
+</ul></li>
+<li>In truth, the <code class="python">AS</code> is optional, but it
+helps some with readability</li>
+</ul>
+<pre ><code class="pgsql" style="font-size:.9em">SELECT *
+FROM tablename AS tn
+JOIN tablename2 AS tn2
+ON tn.col1 = tn2.col2;</code></pre>
+</section>
+<section id="multiple-joins" class="slide level2">
+<h2>Multiple Joins</h2>
+<ul>
+<li>Nothing stops you from including multiple joins in your query</li>
+<li>Each additional join links back to the current growing joined table
+<ul>
+<li>This means a second join is treating the entire initial join as the
+“left” table</li>
+<li>Commonly, you’ll just be joining back to the original table, so it
+won’t be apparent</li>
+</ul></li>
+</ul>
+<pre ><code class="pgsql">SELECT *
+FROM tablename AS t1
+JOIN tablename2 AS t2 ON t1.col1 = t2.col1
+JOIN tablename3 AS t3 ON t1.col2 = t3.col1;</code></pre>
+</section>
+<section id="self-joins" class="slide level2">
+<h2>Self Joins</h2>
+<ul>
+<li>You can actually join a table to itself!</li>
+<li>Why would you want to do this?
+<ul>
+<li>Hierarchy data can frequently be explored in this fashion</li>
+<li>Comparisons between rows of a table</li>
+</ul></li>
+<li>You <strong>need</strong> to give unique aliases when doing this, or
+else you won’t have a way to distinguish between which columns you
+want</li>
+</ul>
+</section>
+<section id="joins-as-venn-diagrams" class="slide level2">
+<h2>Joins as Venn Diagrams</h2>
+<ul>
+<li>Sometimes it may help to think of different types of joins as Venn
+diagrams</li>
+</ul>
+<p><img data-src="../images/joins_venn_diagrams.png"
+style="width:65.0%" /></p>
+<!--
+## Image/Animation Credits
+- [1] https://yetanotherdevblog.com/
+- https://dataschool.com/how-to-teach-people-sql
+-->
+</section>
+    </div>
+  </div>
+
+  <script src="../html_srcs/revealjs/dist/reveal.js"></script>
+
+  // reveal.js plugins
+  <script src="../html_srcs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../html_srcs/revealjs/plugin/search/search.js"></script>
+  <script src="../html_srcs/revealjs/plugin/zoom/zoom.js"></script>
+  // Added plugins
+  <script src="../html_srcs/revealjs/../plugin/chart/Chart.min.js"></script>
+  <script src="../html_srcs/revealjs/../plugin/chart/plugin.js"></script>
+  <script src="../html_srcs/revealjs/../plugin/chalkboard/plugin.js"></script>
+  <script src="../html_srcs/revealjs/../plugin/menu/menu.js"></script>
+  <script src="../html_srcs/revealjs/../other_plugins/reveal.js-d3/reveald3.js"></script>
+  <script src="../html_srcs/revealjs/plugin/math/math.js"></script>
+  <script src="../html_srcs/revealjs/plugin/highlight/highlight.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+		//autoAnimateEasing: 'ease-in',
+		//autoAnimateDuration: 1.0,
+		//autoAnimateUnmatched: false,
+        // Display controls in the bottom right corner
+        controls: true,
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: true,
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'bottom-right',
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+        // Display a presentation progress bar
+        progress: true,
+        // Display the page number of the current slide
+        slideNumber: true,
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+        // Push each slide change to the browser history
+        history: true,
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+        // Enable the slide overview mode
+        overview: true,
+        // Vertical centering of slides
+        center: false,
+        // Enables touch navigation on devices with touch input
+        touch: true,
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'default',
+        // Turns fragments on and off globally
+        fragments: true,
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: true,
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+        // Global override for autoplaying embedded media (video/audio/iframe)
+        // - null: Media will only autoplay if data-autoplay is present
+        // - true: All media will autoplay, regardless of individual setting
+        // - false: No media will autoplay, regardless of individual setting
+        autoPlayMedia: null,
+        // Global override for preloading lazy-loaded iframes
+        // - null: Iframes with data-src AND data-preload will be loaded when within
+        //   the viewDistance, iframes with only data-src will be loaded when visible
+        // - true: All iframes with data-src will be loaded when within the viewDistance
+        // - false: All iframes with data-src will be loaded only when visible
+        preloadIframes: null,
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+        // Transition style
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        // Transition speed
+        transitionSpeed: 'default', // default/fast/slow
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'fade', // none/fade/slide/convex/concave/zoom
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1920,
+        height: 1400,
+        // The display mode that will be used to show slides
+        display: 'block',
+		math: {
+		  <!--mathjax: '../html_srcs/reveal.js/plugin/math/mathjax/tex-mml-chtml.js',-->
+		  <!--config: 'tex-mml-chtml',-->
+		  <!--tex2jax: {-->
+			<!--inlineMath: [['\\(','\\)']],-->
+			<!--displayMath: [['\\[','\\]']],-->
+			<!--balanceBraces: true,-->
+			<!--processEscapes: false,-->
+			<!--processRefs: true,-->
+			<!--processEnvironments: true,-->
+			<!--preview: 'TeX',-->
+			<!--skipTags: ['script','noscript','style','textarea','pre','code'],-->
+			<!--ignoreClass: 'tex2jax_ignore',-->
+			<!--processClass: 'tex2jax_process'-->
+		  <!--},-->
+		  CommonHTML: {scale: 80},
+		},
+	reveald3: {
+			runLastState: true, // true/false, default: true
+			onSlideChangedDelay: 200,
+			mapPath: false, // true / false / "spefific/path/as/string", default: false
+			tryFallbackURL: true, // true/false, default false
+			disableCheckFile: false, //default false
+		 },
+
+        // reveal.js plugins
+        plugins: [
+		  RevealMath,
+          RevealHighlight,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom,
+		  RevealChart,
+		  RevealChalkboard,
+          RevealMenu,
+          Reveald3,
+        ],
+		chalkboard: {
+          boardmarkerWidth: 4,
+          chalkWidth: 7,
+          boardmarkers : [
+                  { color: 'rgba(46,52,64,1)',    cursor: 'url(' + path + 'img/boardmarker-black.png), auto'},
+                  { color: 'rgba(94,129,172,1)',  cursor: 'url(' + path + 'img/boardmarker-blue.png), auto'},
+                  { color: 'rgba(191,97,106,1)',  cursor: 'url(' + path + 'img/boardmarker-red.png), auto'},
+                  { color: 'rgba(163,190,140,1)', cursor: 'url(' + path + 'img/boardmarker-green.png), auto'},
+                  { color: 'rgba(208,135,112,1)', cursor: 'url(' + path + 'img/boardmarker-orange.png), auto'},
+                  { color: 'rgba(180,142,173,1)', cursor: 'url(' + path + 'img/boardmarker-purple.png), auto'},
+                  { color: 'rgba(235,203,139,1)', cursor: 'url(' + path + 'img/boardmarker-yellow.png), auto'}
+          ],
+          chalks: [
+                  { color: 'rgba(216,222,223,0.5)',cursor: 'url(' + path + 'img/chalk-white.png), auto'},
+                  { color: 'rgba(94,129,172,0.5)', cursor: 'url(' + path + 'img/chalk-blue.png), auto'},
+                  { color: 'rgba(191,97,106,0.5)', cursor: 'url(' + path + 'img/chalk-red.png), auto'},
+                  { color: 'rgba(163,190,140,0.5)',cursor: 'url(' + path + 'img/chalk-green.png), auto'},
+                  { color: 'rgba(208,135,112,0.5)',cursor: 'url(' + path + 'img/chalk-orange.png), auto'},
+                  { color: 'rgba(180,142,173,0.5)',cursor: 'url(' + path + 'img/chalk-purple.png), auto'},
+                  { color: 'rgba(235,203,139,0.5)',cursor: 'url(' + path + 'img/chalk-yellow.png), auto'}
+          ]
+		},
+		dependencies: [
+            // { src: "../html_srcs/revealjs/plugin/title-footer/title-footer.js", async: true, callback: function() { title_footer.initialize({css:"../html_srcs/revealjs/plugin/title-footer/title-footer.css"}); } },
+            //{ src: "../html_srcs/revealjs/plugin/d3/reveald3.js" },
+		],
+      });
+    </script>
+    </body>
+</html>

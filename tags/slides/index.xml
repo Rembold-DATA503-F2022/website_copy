@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>slides on Jeds Digital Home</title>
+    <link>/tags/slides/</link>
+    <description>Recent content in slides on Jeds Digital Home</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 19 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="/tags/slides/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/cs151/slides/</link>
+      <pubDate>Tue, 19 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/cs151/slides/</guid>
+      <description>
+Number Date Chapter Description Video Lecture 39 Fri, Dec 9 Chapter Public-Key Encryption and RSA Lecture 38 Wed, Dec 7 Chapter Fun Libraries Lecture 37 Mon, Dec 5 Chapter 8 Emerging Recursion Lecture 36 Fri, Dec 2 Chapter 8 Sorting Lecture 35 Wed, Nov 30 Chapter 11/8 Token Searching Lecture 34 Mon, Nov 28 Chapter Adventure Game Lecture 33 Fri, Nov 18 Chapter 11 The Teaching Machine Lecture 32 Wed, Nov 16 Chapter 11 JSON Lecture 31 Mon, Nov 14 Chapter 10 Sets Lecture 30 Fri, Nov 11 Chapter 10 Dictionaries Lecture 29 Wed, Nov 9 Chapter 10 Enigma Lecture 28 Mon, Nov 7 Chapter 7 File Input/Output Lecture 27 Fri, Nov 4 Chapter 9 Expanding Inheritance Lecture 26 Wed, Nov 2 Chapter 9 Representing Inheritance Lecture 25 Mon, Oct 31 Chapter 9 Constructors Lecture 24 Fri, Oct 28 Chapter 9 Records Lecture 23 Wed, Oct 26 Chapter 9 All Debugs Lecture 22 Mon, Oct 24 Chapter 9 ImageShop Lecture 21 Fri, Oct 21 Chapter 7 Images Lecture 20 Wed, Oct 19 Chapter 7 Mutability and Multidimensional Arrays Lecture 19 Mon, Oct 17 Chapter 7 Formatting Mutability Lecture 18 Mon, Oct 10 Chapter 6 Stringing Together Breakout Lecture 17 Fri, Oct 7 Chapter 6 Stringy Methods Lecture 16 Wed, Oct 5 Chapter 6 10 Representations Lecture 15 Mon, Oct 3 Chapter 5 Complex Shapes Lecture 14 Fri, Sep 30 Chapter 5 Getting Animated Lecture 13 Wed, Sep 28 Chapter 5 Interactive Events Lecture 12 Mon, Sep 26 Chapter 5 Random Events Lecture 11 Fri, Sep 23 Chapter 4 Scoping out Functions Lecture 10 Wed, Sep 21 Chapter 3-4 Drawing Functions Lecture 9 Mon, Sep 19 Chapter 3 Wordle Collages Lecture 8 Fri, Sep 16 Chapter 2 Ranging True and False Lecture 7 Wed, Sep 14 Chapter 1-2 Control Structures and I/O Lecture 6 Mon, Sep 12 Chapter 1 Functions, Strings and Lists Lecture 5 Fri, Sep 9 Chapter 1 Types and Variables Lecture 4 Wed, Sep 7 Chapter Stepwise Refinement Lecture 3 Fri, Sep 2 Chapter Controlling Karel Lecture 2 Wed, Aug 31 Chapter Functional Karel Lecture 1 Mon, Aug 29 Chapter Introducing Karel </description>
+    </item>
+    
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/data351/slides/</link>
+      <pubDate>Tue, 19 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/data351/slides/</guid>
+      <description>Number Date Chapter Description Video Lecture 23 Wed, Nov 30 Chapter 15 Views and Functions Lecture 22 Mon, Nov 28 Chapter Webscraping and APIs Lecture 21 Wed, Nov 16 Chapter 14 Shapefiles Lecture 20 Mon, Nov 14 Chapter 14 GIS Types Lecture 19 Wed, Nov 9 Chapter 13 Text Mining Lecture 18 Mon, Nov 7 Chapter 13 Regular Expressions Lecture 17 Mon, Oct 31 Chapter Window Functions Lecture 16 Wed, Oct 26 Chapter 12 Pivot Tables Lecture 15 Mon, Oct 24 Chapter 12 Subqueries Lecture 14 Wed, Oct 19 Chapter 11 Timing Lecture 13 Mon, Oct 17 Chapter 9 Alterations Lecture 12 Wed, Oct 12 Chapter 9 Data Cleaning Lecture 11 Mon, Oct 10 Chapter 8 Grouping Up!</description>
+    </item>
+    
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/data503/slides/</link>
+      <pubDate>Tue, 19 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/data503/slides/</guid>
+      <description>Number Date Chapter Description Video Lecture 12 Wed, Nov 30 Chapter 15 Triggers and PostGIS Lecture 11 Wed, Nov 16 Chapter 15 Lexemes, Views and Triggers Lecture 10 Wed, Nov 9 Chapter 13 Modeling and Text Lecture 9 Wed, Nov 2 Chapter 12 Subqueries, Pivots, and Windows Lecture 8 Wed, Oct 26 Chapter 11 RDB, Railway and Dates Lecture 7 Wed, Oct 19 Chapter 9 Scraping and Altering Lecture 6 Wed, Oct 5 Chapter 8 Group Containers Lecture 5 Wed, Sep 28 Chapter 7 Remote Constraints Lecture 4 Wed, Sep 21 Chapter 6 The Shell and Joins Lecture 2 Wed, Sep 7 Chapter 2 Types, I/O, and Lifecycles Lecture 3 Wed, Sep 7 Chapter 5 Source Data and SQL Calculations Lecture 1 Wed, Aug 31 Chapter 1 What is a Data Engineer?</description>
+    </item>
+    
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/phys339/slides/</link>
+      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/phys339/slides/</guid>
+      <description>Number Date Chapter Description Video Lecture 27 Fri, Nov 20 Chapter 11 Linearization Lecture 26 Wed, Nov 18 Chapter 11 Normal Modes and Linearization Lecture 24 Fri, Nov 13 Chapter 11 Intro to Coupled Oscillators Lecture 23 Wed, Nov 11 Chapter 10 Euler Equations Lecture 22 Fri, Nov 6 Chapter 10 Principal Axes Lecture 21 Wed, Nov 4 Chapter 10 The Inertial Tensor Lecture 20 Fri, Oct 30 Chapter 10 Rotations about 1 Axis Lecture 19 Wed, Oct 28 Chapter 9 Rotating Reference Frames Lecture 18 Fri, Oct 23 Chapter 9 Linearly Accelerating Frames Lecture 17 Wed, Oct 21 Chapter 8 Orbital Shapes and Transfers Lecture 16 Fri, Oct 16 Chapter 8 Central Forces and Orbital Motion Lecture 15 Wed, Oct 14 Chapter 7 Equilibria and Multipliers Lecture 14 Fri, Oct 9 Chapter 7 Lagrange Details Lecture 13 Fri, Oct 2 Chapter 7 Generalize Coordinates Lecture 11 Fri, Sep 25 Chapter 6 Calculus of Variations Lecture 10 Wed, Sep 23 Chapter 5 Damped and Driven Oscillators Lecture 12 Sun, Sep 20 Chapter 7 Lagrange enters the room Lecture 9 Fri, Sep 18 Chapter 5 Effective Springs and Spring Solutions Lecture 8 Wed, Sep 16 Chapter 4 Constraining and Central Forces Lecture 7 Fri, Sep 11 Chapter 4 Potential Energy and Forces Lecture 6 Wed, Sep 9 Chapter 4 Systems and Rotations Lecture 5 Fri, Sep 4 Chapter 3 Rockets!</description>
+    </item>
+    
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/phys345/slides/</link>
+      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/phys345/slides/</guid>
+      <description>
+Number Date Chapter Description Video Lecture 38 Fri, Dec 7 Chapter 7 Maxwell-Ampere Lecture 37 Wed, Dec 5 Chapter 7 Induction Lecture 36 Mon, Dec 3 Chapter 7 Faraday&amp;#39;s Law Lecture 35 Fri, Nov 30 Chapter 7 Motional EMFs Lecture 34 Wed, Nov 28 Chapter 7 Ohmmmm Lecture 33 Mon, Nov 26 Chapter 6 Hysteresis Lecture 32 Fri, Nov 16 Chapter 6 Ferromagnetics Lecture 31 Wed, Nov 14 Chapter 6 The Auxiliary Field Lecture 30 Fri, Nov 9 Chapter 6 Bound Currents Lecture 29 Wed, Nov 7 Chapter 6 Para and Dia Magnetism Lecture 28 Mon, Nov 5 Chapter 6 Magnetic Dipole Moments Lecture 27 Fri, Nov 2 Chapter 5 Magnetic Vector Potential Lecture 26 Wed, Oct 31 Chapter 5 Constructing B Fields Lecture 25 Mon, Oct 29 Chapter 5 Ampere&amp;#39;s Law Lecture 24 Fri, Oct 26 Chapter 5 Biot-Savart Math Lecture 23 Wed, Oct 24 Chapter 5 Magnetic Forces and Currents Lecture 22 Mon, Oct 22 Chapter 4 Dielectric Boundary Conditions Lecture 21 Wed, Oct 17 Chapter 4 Linear Dielectrics Lecture 20 Mon, Oct 15 Chapter 4 Electric Displacement Lecture 19 Wed, Oct 10 Chapter 4 Bound Charges Lecture 18 Mon, Oct 8 Chapter 4 Polarization Lecture 17 Fri, Oct 5 Chapter 3 Multipole Expansions Lecture 16 Wed, Oct 3 Chapter 3 Separation of Variables: Spherical Lecture 15 Mon, Oct 1 Chapter 3 Separation of Variables: Cartesian Lecture 14 Fri, Sep 28 Chapter 3 Method of Relaxation Lecture 13 Wed, Sep 26 Chapter 3 Method of Images Lecture 12 Mon, Sep 24 Chapter 3 The Laplace Equation Lecture 11 Fri, Sep 21 Chapter 2 Conductors Lecture 10 Wed, Sep 19 Chapter 2 Numerically Finding Fields Lecture 9 Mon, Sep 17 Chapter 2 Potential and Energy Lecture 8 Fri, Sep 14 Chapter 2 Electric Potential Lecture 7 Wed, Sep 12 Chapter 2 Dirac Delta Functions Lecture 6 Mon, Sep 10 Chapter 2 Gauss&amp;#39;s Law Lecture 5 Fri, Sep 7 Chapter 2 Visualizations Tutorial Lecture 4 Wed, Sep 5 Chapter 2 Coulomb Basics Lecture 3 Fri, Aug 31 Chapter 1 Learning Sympy Lecture 2 Wed, Aug 29 Chapter 1 Remembering Vector Calculus Lecture 1 Mon, Aug 27 Chapter 1 Vector Refresher </description>
+    </item>
+    
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/ids138/slides/</link>
+      <pubDate>Mon, 20 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/ids138/slides/</guid>
+      <description>
+Number Date Chapter Description </description>
+    </item>
+    
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/phys110/slides/</link>
+      <pubDate>Mon, 20 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/phys110/slides/</guid>
+      <description>Number Date Chapter Description Video Lecture 37 Mon, Nov 23 Chapter 30 Aliens! Lecture 36 Fri, Nov 20 Chapter 29 The CMB Lecture 35 Wed, Nov 18 Chapter 29 Evolution of the Universe Lecture 34 Mon, Nov 16 Chapter 25 Wavelengths of the Milky Way and Formation Lecture 33 Wed, Nov 11 Chapter 25 Rotation and Star Cycle Lecture 32 Mon, Nov 9 Chapter 24 Black Holes and the Milky Way Lecture 31 Fri, Nov 6 Chapter 24 Neutron Stars and Black Holes Lecture 30 Wed, Nov 4 Chapter 22 Supernova and WD Lecture 29 Mon, Nov 2 Chapter 22 Low Mass Lifetimes Lecture 28 Fri, Oct 30 Chapter 20 Star Clusters and the HR Diagram Lecture 27 Wed, Oct 28 Chapter 18 Mass and HR Diagrams Lecture 26 Mon, Oct 26 Chapter 17 Magnitudes and Star Properties Lecture 25 Fri, Oct 23 Chapter 16 Energy Production and the Solar Cycle Lecture 24 Wed, Oct 21 Chapter 15 Introduction to Fusion Lecture 23 Fri, Oct 16 Chapter 15 Distance to Sun and Energy Lecture 22 Wed, Oct 14 Chapter 14 Exoplanets and Intro to the Sun Lecture 21 Mon, Oct 12 Chapter 13 Origins of Solar System and Exoplanets Lecture 20 Fri, Oct 9 Chapter 13-14 Comets, Dwarf Planets and Origins Lecture 19 Wed, Oct 7 Chapter 13 Rings and Asteroids!</description>
+    </item>
+    
+    <item>
+      <title>Lecture Slides</title>
+      <link>/classes/phys222/slides/</link>
+      <pubDate>Mon, 20 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/phys222/slides/</guid>
+      <description>
+Number Date Chapter Description Video Lecture 37 Fri, May 1 Chapter S3 Refraction and Reflection Lecture 36 Wed, Apr 29 Chapter S3 Finding points of Interference Lecture 35 Mon, Apr 27 Chapter S3 Basic Waves Lecture 34 Mon, Apr 20 Chapter 23 Direction of Radiation Lecture 33 Fri, Apr 17 Chapter 23 Electromagnetic Radiation Lecture 32 Wed, Apr 15 Chapter 23 Maxwell&amp;#39;s Correction to Ampere&amp;#39;s Law Lecture 31 Mon, Apr 13 Chapter 22 Faraday&amp;#39;s Law Lecture 30 Fri, Apr 10 Chapter 21 Ampere&amp;#39;s Law Lecture 28 Mon, Apr 6 Chapter 21 Intro to Flux and Gauss Lecture 26 Mon, Mar 30 Chapter 20 Lorentz Force and Hall Effect Lecture 25 Fri, Mar 20 Chapter 20 Intro to Magnetic Force Lecture 24 Wed, Mar 18 Chapter 19 Power and Internal Resistance Lecture 23 Mon, Mar 16 Chapter 19 Intro to Resistors Lecture 22 Fri, Mar 13 Chapter 19 Intro to Capacitance Lecture 21 Wed, Mar 11 Chapter 18 Loop Laws and Energy Lecture 20 Mon, Mar 9 Chapter 18 What drives currents Lecture 19 Fri, Mar 6 Chapter 17 Solenoids and Molecular Currents Lecture 18 Wed, Mar 4 Chapter 17 Magnetic Distributions Lecture 17 Mon, Mar 2 Chapter 17 Understanding Current Events Lecture 16 Fri, Feb 28 Chapter 17 Dielectric Constants and Intro to Magnetism Lecture 15 Wed, Feb 26 Chapter 16 Test Coverage and Single Potentials Lecture 14 Mon, Feb 24 Chapter 16 Strong Independent Paths Lecture 13 Wed, Feb 19 Chapter 16 Slopes and Changing Fields Lecture 12 Mon, Feb 17 Chapter 16 Intro to Potential Lecture 11 Fri, Feb 14 Chapter 15 Planes, Spheres and Capacitors Lecture 10 Wed, Feb 12 Chapter 15 Ring Charges and Computation Lecture 9 Mon, Feb 10 Chapter 15 The Line Charge Lecture 8 Fri, Feb 7 Chapter 15 Van Der Graff and Intro to Distributions Lecture 7 Wed, Feb 5 Chapter 14 Moving Charges Around Lecture 6 Mon, Feb 3 Chapter 14 Conductor Behavior Lecture 5 Fri, Jan 31 Chapter 14 Induced Dipoles Lecture 4 Wed, Jan 29 Chapter 13 Dipoles and Computation Lecture 3 Mon, Jan 27 Chapter 13 Superposition and the Dipole Lecture 2 Fri, Jan 24 Chapter 13 Why We Use Fields Lecture 1 Wed, Jan 22 Chapter 13 First day of class Lecture 29 Wed, Apr 10 Chapter 21 Gauss&amp;#39;s Law Lecture 27 Fri, Apr 5 Chapter 20 Motional emf and Generators </description>
+    </item>
+    
+  </channel>
+</rss>

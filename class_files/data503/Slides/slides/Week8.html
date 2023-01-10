@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Jed Rembold">
+  <title>RPostgres, Railway, and Dates</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../html_srcs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../html_srcs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <link rel="stylesheet" href="../html_srcs/revealjs/../css/theme/nord_light.css" id="theme">
+  <link rel="stylesheet" href="../html_srcs/revealjs/../css/highlight/nord.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide">
+  <h1 class="title">RPostgres, Railway, and Dates</h1>
+  <p class="author">Jed Rembold</p>
+  <p class="date">Wednesday, October 26, 2022</p>
+</section>
+
+<section id="announcements" class="slide level2">
+<h2>Announcements</h2>
+<ul>
+<li>Homework 7 due on <strong>Sunday</strong> night</li>
+<li>We’ll keep this Sunday due date going forward for the rest of the
+semester</li>
+<li>I’m unfortunately still working on the midterm grading :(</li>
+<li>This next week’s homework will be more project centric</li>
+<li>In class polling: <a
+href="http://rembold-class.ddns.net">rembold-class.ddns.net</a></li>
+</ul>
+<!--------  THEORY ------------------>
+</section>
+<section id="an-interface" class="slide level2">
+<h2>An Interface</h2>
+<ul>
+<li>SQL is brilliant for working within our databases
+<ul>
+<li>It is not generally as flexible to handle other common scripting
+tasks</li>
+</ul></li>
+<li>You may at times need an <em>interface</em> between a common
+scripting language (say R or Python) and SQL</li>
+<li>These interfaces generally allow two major things to happen:
+<ul>
+<li>You can trigger certain SQL commands to happen in the database from
+within your other script</li>
+<li>You can query results <em>out</em> of a database using SQL and bring
+them directly into your scripting language, ready for use</li>
+</ul></li>
+</ul>
+</section>
+<section id="all-about-the-connection" class="slide level2">
+<h2>All about the connection</h2>
+<ul>
+<li>Regardless of the scripting language, an interface is generally
+built around an initial <em>connection</em> object that gets defined in
+the language</li>
+<li>The connection object is initially formed by requiring information
+about the database you desire to connect to
+<ul>
+<li>IP address / Port</li>
+<li>Database name</li>
+<li>User you’ll be connecting as</li>
+<li>User password</li>
+</ul></li>
+<li>All other commands will use the connection object as a method to
+communicate with the database</li>
+<li>Frequently will form one connecting at the start and then maintain
+it, but you could connect and disconnect as needed</li>
+</ul>
+</section>
+<section id="package-management" class="slide level2">
+<h2>Package Management</h2>
+<ul>
+<li>Tidyverse already has the dbplyr package for working with databases,
+which brings along with it the necessary DBI package
+<ul>
+<li>The DBI package is the one responsible for facilitating the
+connection and providing many common functions for interacting with the
+database</li>
+<li>Other packages are built on top of DBI to allow connections to
+different types of databases, all using a similar syntax</li>
+</ul></li>
+<li>You will also need <code class="python">RPostgreSQL</code>, which is
+built on top of DBI to allow for connections to PostgreSQL
+databases</li>
+</ul>
+</section>
+<section id="making-a-connection" class="slide level2">
+<h2>Making a connection</h2>
+<ul>
+<li>The <code class="python">dBConnect</code> command is used to create
+a connection object</li>
+<li>Needs at least one input, corresponding to a DBI object representing
+the type of database to connect to
+<ul>
+<li>For Postgres, that can be
+<code class="python">RPostgreSQL::PostgreSQL()</code></li>
+</ul></li>
+<li>Further parameters can customize aspects of what database is
+connected to
+<ul>
+<li><code class="python">dbname</code> for the database name</li>
+<li><code class="python">host</code> for the IP address (or localhost if
+on same system)</li>
+<li><code class="python">port</code> for a specific port</li>
+<li><code class="python">user</code> for the connecting username</li>
+<li><code class="python">password</code> for the corresponding
+password</li>
+</ul></li>
+<li>Save the connection object as something! You will need it!</li>
+</ul>
+</section>
+<section id="example-connection" class="slide level2">
+<h2>Example Connection</h2>
+<ul>
+<li><p>Connecting to a generic postgres database living on the same
+computer:</p>
+<pre ><code class="r">con <- dbConnect(RPostgreSQL::PostgreSQL(),
+                 dbname = 'analysis',
+                 host = 'localhost',
+                 port = 5432,
+                 user = 'postgres',
+                 password = 'postgres')</code></pre></li>
+</ul>
+</section>
+<section id="reading-information" class="slide level2">
+<h2>Reading information</h2>
+<ul>
+<li>Once you have a connection, you can query the database and bring
+that information into R!</li>
+<li>Several approaches
+<ul>
+<li><p>Using DBI directly:</p>
+<pre ><code class="r">output <- dbGetQuery(con, "SELECT * FROM pokemon")</code></pre>
+<ul>
+<li>This reads the resulting table directly into a dataframe stored in
+local memory</li>
+</ul></li>
+<li><p>Using dbplyr:</p>
+<pre ><code class="r">output <- tbl(con, sql("SELECT * FROM pokemon"))</code></pre>
+<ul>
+<li>This stores in the <code class="python">output</code> a database
+table object, which is essentially a map to the information in the
+database</li>
+<li>You can filter, aggregate, etc on this object as if it were a local
+dataframe, but <em>it is actually still on the server</em>!</li>
+<li>dplyr converts all the R commands into corresponding SQL that is run
+serverside</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="writing-information" class="slide level2">
+<h2>Writing information</h2>
+<ul>
+<li>For writing information to the database, or any other SQL commands
+that don’t return a table, things are more straightforward (kinda)</li>
+<li>I would recommend using <code class="python">dbExecute</code>, as
+I’ve found it to be the most straightforward and convenient</li>
+<li>Takes two required arguments:
+<ul>
+<li>The desired connection object</li>
+<li>A string containing the SQL you desire to run</li>
+</ul>
+<pre ><code class="r">dbExecute(
+  con, 
+  "INSERT INTO test VALUES ('Jed', 1985)"
+)</code></pre></li>
+</ul>
+</section>
+<section id="parameterizing-information" class="slide level2">
+<h2>Parameterizing Information</h2>
+<ul>
+<li>Often, you have gotten information from another source that you want
+to embed inside an SQL query</li>
+<li>You could do this directly through string processing, using
+something like <code class="python">paste</code> or
+<code class="python">glue</code>
+<ul>
+<li>Doing this blindly though can open you up to SQL-Injection
+attacks!</li>
+</ul></li>
+<li>A better way is through <em>query parameterization</em>
+<ul>
+<li>Indicate placeholders in the query where you want information to be
+subbed in, and then supply that information</li>
+<li>The interface library then takes care of sanitizing the input and
+making sure nothing nefarious is going on before inserting the desired
+strings</li>
+</ul></li>
+</ul>
+</section>
+<section id="rpostgresql-parameterization" class="slide level2">
+<h2>RPostgresql Parameterization</h2>
+<ul>
+<li><p>Uses ordered placeholders using a dollar sign followed by a
+number: <code class="python">$1</code>, <code class="python">$2</code>,
+etc</p>
+<ul>
+<li>This is a bit different than many implementations, which let you
+just use <code class="python">?</code> marks</li>
+</ul></li>
+<li><p>Can provide a parameterization list after the query:</p>
+<pre ><code class="r">dbExecute(con, "INSERT INTO test VALUES ($1, $2)", list('Jed', 1985))</code></pre></li>
+<li><p>Could also provide a 1-row tibble of the necessary
+length</p></li>
+<li><p>In RPostgreSQL, there seems to be no way to do bulk inserts using
+parameterization, unfortunately</p></li>
+<li><p>Can also work with <code class="python">dbGetQuery</code>
+statements:</p>
+<pre ><code class="r">dbGetQuery(con, "SELECT * FROM pokemon WHERE hp > $1", params=list(50))</code></pre></li>
+</ul>
+</section>
+<section id="sleeping" class="slide level2">
+<h2>Sleeping</h2>
+<ul>
+<li><p>For long running data acquisition scripts, it is often useful to
+have the program “wait” a set amount of time between grabbing
+data</p></li>
+<li><p>You can do this in R with the
+<code class="python">Sys.sleep(duration)</code></p>
+<ul>
+<li>Duration is given in seconds</li>
+</ul></li>
+<li><p>Such statements are generally embedded in long running or
+infinite loops:</p>
+<pre ><code class="r">while (TRUE) {
+  ...do something cool...
+  Sys.sleep(60) # Wait a minute 
+}</code></pre></li>
+</ul>
+</section>
+<section id="activity" class="slide level2">
+<h2>Activity</h2>
+<ul>
+<li>Take some time now to:
+<ul>
+<li>From within R, create a new table in your database of choice
+<ul>
+<li>You can name it anything you want, and have whatever columns you
+want</li>
+<li>Ensure after creating it that you can access and query this table
+from your client of choice!</li>
+</ul></li>
+<li>From within R, read in a dataframe of all the number of superheros
+who have each available superhero power and use that to create a
+histogram in ggplot.</li>
+</ul></li>
+</ul>
+</section>
+<section id="break-time" class="slide level2">
+<h2>Break Time!</h2>
+<!--![](../images/nomming_catepillar.png)-->
+<p><img
+data-src="https://64.media.tumblr.com/tumblr_lpc46oU6Cy1qi1pnpo1_500.gifv"
+style="width:50.0%" /></p>
+</section>
+<section id="railway-introduction" class="slide level2">
+<h2>Railway Introduction</h2>
+<ul>
+<li>There are many different webhosting options these days</li>
+<li>For this class, I was looking for:
+<ul>
+<li>Something fairly straightforward</li>
+<li>Something free</li>
+<li>Something that could easily handle both a database and a data
+acquisition script</li>
+</ul></li>
+<li>Railway.app is what I found</li>
+</ul>
+</section>
+<section id="railway-details" class="slide level2">
+<h2>Railway Details</h2>
+<ul>
+<li>You get $5 free dollars of usage each month, 500 hrs without even
+giving a credit card
+<ul>
+<li>For what we will be doing, normal usage should be well below that $5
+threshold, making it essentially free</li>
+</ul></li>
+<li>Can spin up a Postgres database easily, in the cloud</li>
+<li>Can also launch a Docker container
+<ul>
+<li>Builds the image directly from a Dockerfile and supporting files in
+a GitHub repository</li>
+</ul></li>
+<li>You can sign up for Railway using your GitHub account</li>
+</ul>
+</section>
+<section id="creating-a-db" class="slide level2">
+<h2>Creating a DB</h2>
+<ul>
+<li>Creating a new Postgres database is drop dead simple:
+<ul>
+<li>Create a new project</li>
+<li>Select “Provision PostgreSQL”</li>
+<li>Give it a moment, and then it will be up and running!</li>
+</ul></li>
+<li>You can click on it in your project to bring up options where you
+can:
+<ul>
+<li>Add tables</li>
+<li>Query the data directly</li>
+<li>Get the all important connection information</li>
+</ul></li>
+<li>Test it! You should be able to connect using this connection
+information from your client of choice!</li>
+</ul>
+</section>
+<section id="deploying-a-docker-container" class="slide level2">
+<h2>Deploying a Docker Container</h2>
+<ul>
+<li>We also need a method to deploy a Docker container that will run our
+scraping script</li>
+<li>In your project, select “New” and then choose “GitHup Repo”</li>
+<li>You’ll then need to choose Configure/Install GitHub App
+<ul>
+<li>This will link Railway.app to your GitHub account</li>
+<li>You can choose to either link it to all your repositories, or, like
+me, choose specific repositories</li>
+<li>In that repository, all you need is a Dockerfile and any supporting
+files (like your R script) that you would normally need to build the
+image
+<ul>
+<li>Build an image first on your local machine to make sure it works!
+Then just copy the same files into this repository</li>
+</ul></li>
+</ul></li>
+<li>Whenever you commit a new change to that repo, Railway will
+automatically rebuild the Docker image and redeploy it, which is pretty
+slick</li>
+</ul>
+</section>
+<section id="environmental-variables" class="slide level2">
+<h2>Environmental Variables</h2>
+<ul>
+<li><p>Environmental variables are shared with all entities in your
+railway project!</p></li>
+<li><p>This means that you can use them to directly access the database
+properties, without hardcoding them in</p>
+<ul>
+<li>This also make your image more flexible, where it could connect to
+any database given the proper environmental variables</li>
+</ul></li>
+<li><p>In R, to access an environmental variable:</p>
+<pre ><code class="r">A <- Sys.getenv("PGHOST")</code></pre></li>
+</ul>
+<!---------------- SQL ------------------>
+</section>
+<section id="reminders" class="slide level2">
+<h2>Reminders</h2>
+<ul>
+<li>We have about 4 current date or time related data types</li>
+<li>Date time types:
+<ul>
+<li><code class="python">DATE</code>: holds a single individual day</li>
+<li><code class="python">TIME</code>: holds a single individual
+time</li>
+<li><code class="python">TIMESTAMP</code> or variants with
+<code class="python">TIMESTAMPZ</code>: holds a combination of date and
+time, along with a potential time zone</li>
+</ul></li>
+<li>Interval types:
+<ul>
+<li><code class="python">INTERVAL</code>: holds a duration of time</li>
+</ul></li>
+</ul>
+</section>
+<section id="extracting-pieces" class="slide level2">
+<h2>Extracting Pieces</h2>
+<ul>
+<li>Having all the information in one value is convenient, but sometimes
+you only need pieces
+<ul>
+<li>The hour from the time, or the month from the date</li>
+</ul></li>
+<li>These can be particularly important with aggregates!</li>
+<li>Two methods to extract pieces of any datetime or interval type:
+<ul>
+<li>SQL standard:
+<code class="python">extract( text FROM datetime_value )</code></li>
+<li>Postgres specific:
+<code class="python">date_part( text, datetime_value )</code></li>
+</ul></li>
+<li>Both will return a <code class="python">DOUBLE PRECISION</code>
+value of whatever part was requested</li>
+</ul>
+</section>
+<section id="parts-of-extract" class="slide level2">
+<h2>Parts of Extract</h2>
+<ul>
+<li>You have a wide variety of what you can extract</li>
+</ul>
+<div style="font-size:.7em">
+<div class="cols">
+<div class="col">
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 81%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>text</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>century</td>
+<td>What century the date is in. 1st century starts 0001-01-01<span
+class="orange">★</span></td>
+</tr>
+<tr class="even">
+<td>day</td>
+<td>What day of the month</td>
+</tr>
+<tr class="odd">
+<td>decade</td>
+<td>The year divided by 10</td>
+</tr>
+<tr class="even">
+<td>dow</td>
+<td>The day of the week (0-6, starting with Sunday)</td>
+</tr>
+<tr class="odd">
+<td>doy</td>
+<td>The day of the year</td>
+</tr>
+<tr class="even">
+<td>epoch</td>
+<td>Number of seconds since 1970-01-01</td>
+</tr>
+<tr class="odd">
+<td>hour</td>
+<td>The current hour (0-23)</td>
+</tr>
+<tr class="even">
+<td>microseconds</td>
+<td>The number of microseconds</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="col">
+<table>
+<thead>
+<tr class="header">
+<th>text</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>milliseconds</td>
+<td>The number of milliseconds</td>
+</tr>
+<tr class="even">
+<td>minute</td>
+<td>The minute</td>
+</tr>
+<tr class="odd">
+<td>month</td>
+<td>The month (1-12)</td>
+</tr>
+<tr class="even">
+<td>quarter</td>
+<td>What quarter of the year (1-4)</td>
+</tr>
+<tr class="odd">
+<td>second</td>
+<td>The number of seconds</td>
+</tr>
+<tr class="even">
+<td>timezone</td>
+<td>The timezone offset in seconds</td>
+</tr>
+<tr class="odd">
+<td>timezone_hour</td>
+<td>The timezone offset in hours</td>
+</tr>
+<tr class="even">
+<td>week</td>
+<td>What week of the year. ISO weeks start on Monday</td>
+</tr>
+<tr class="odd">
+<td>year</td>
+<td>The year</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<hr>
+<div style="font-size:.5em">
+<p><span class="orange">★</span> – If you disagree with this, please
+write your complaint to: Pope, Cathedral Saint-Peter of Roma,
+Vatican.</p>
+</div>
+</section>
+<section id="reversing-it" class="slide level2">
+<h2>Reversing it</h2>
+<ul>
+<li>Often times existing data sets have already separated out different
+aspects of the date or time
+<ul>
+<li>Year, month, and day might be in different columns for example</li>
+</ul></li>
+<li>It can be useful to “stitch” these together into an actual datetime
+type for further use.</li>
+<li>Postgres gives you a handful of functions to do so:
+<ul>
+<li><code class="python">make_date( year, month, day )</code>: Returns a
+new <code class="python">DATE</code> type value</li>
+<li><code class="python">make_time( hour, minute, seconds )</code>:
+Returns a new <code class="python">TIME</code> type value (with no
+timezone)</li>
+<li><code class="python">make_timestampz(year,month,day,hour,minute,second,time zone)</code>:
+Returns a new <code class="python">TIMESTAMPZ</code> type value</li>
+<li><code class="python">make_timestamp</code> and
+<code class="python">make_interval</code> also exist</li>
+</ul></li>
+</ul>
+</section>
+<section id="aging-well" class="slide level2">
+<h2>Aging well</h2>
+<ul>
+<li>Subtracting two <code class="python">DATE</code> type values will
+give just an <code class="python">INT</code> (in days)</li>
+<li>Subtracting two <code class="python">TIMESTAMP</code> type values
+will give an <code class="python">INTERVAL</code>, with the biggest
+“unit” in days</li>
+<li>Using Postgres’s <code class="python">age()</code> function can
+smooth over both and give units larger than days
+<ul>
+<li><code class="python">age( datetime1, datetime2 )</code>: Subtracts
+datetime2 from datetime1</li>
+</ul></li>
+<li>This can <strong>still</strong> give you awkward interval units at
+times though, so also consider using
+<code class="python">justify_interval( interval )</code>, which breaks
+intervals into divisions that don’t exceed a categories max
+<ul>
+<li>Hours would always be between 0 and 23 for instance, or months
+between 1 and 12</li>
+<li>Especially if you want to extract a particular part, this is highly
+recommended</li>
+</ul></li>
+</ul>
+</section>
+<section id="what-time-is-it" class="slide level2">
+<h2>What time is it?</h2>
+<ul>
+<li>Standard SQL also provides constants for grabbing the current system
+time and date</li>
+</ul>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 59%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>function</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="python">current_date</code></td>
+<td>Returns the current date</td>
+</tr>
+<tr class="even">
+<td><code class="python">current_time</code></td>
+<td>Returns the current time with timezone</td>
+</tr>
+<tr class="odd">
+<td><code class="python">localtime</code></td>
+<td>Returns the current time without timezone</td>
+</tr>
+<tr class="even">
+<td><code class="python">current_timestamp</code><span
+class="orange">★</span></td>
+<td>Returns the current date and time with timezone</td>
+</tr>
+<tr class="odd">
+<td><code class="python">localtimestamp</code></td>
+<td>Returns the current date and time without timezone</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><span class="orange">★</span> – Postgres also offers the shorter
+<code class="python">now()</code> <em>function</em> to do the same
+thing</p>
+<!--## Current vs Clock-->
+<!--- Any query using `current_timestamp` has it computed once at the start of a query-->
+<p><!--- This is frequently desired for logging, so that you just get 1 consistent time for any records added from a single query-->
+<!--- If you **want** record-by-record time keeping, you should use `clock_timestamp()` instead, which will work the same way but be updated before every value written to the table--></p>
+</section>
+<section id="time-zones" class="slide level2">
+<h2>Time Zones</h2>
+<ul>
+<li>Dealing with time zones can be a headache, and it is a very nice
+feature that Postgres can work with them smoothly</li>
+<li>By default, Postgres will <em>display</em> any timestamp with a time
+zone with the time as you would measure it in your current system
+timezone</li>
+<li>What is your current system timezone?
+<ul>
+<li><code class="python">SHOW timezone;</code></li>
+</ul></li>
+<li>Getting general information about timezones:
+<ul>
+<li>Getting abbreviations:
+<ul>
+<li><code class="python">SELECT * FROM pg_timezone_abbrevs;</code></li>
+</ul></li>
+<li>Getting full names:
+<ul>
+<li><code class="python">SELECT * FROM pg_timezone_names;</code></li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="teleportation" class="slide level2">
+<h2>Teleportation</h2>
+<ul>
+<li>It can sometimes be useful to switch your “current” time zone
+<ul>
+<li>Maybe it is easier to compare times to someone else living in that
+time zone</li>
+</ul></li>
+<li>Several methods to make the switch:
+<ul>
+<li><p>Change your <code class="python">postgressql.conf</code> file,
+which controls your Postgres server. Only recommended if you have
+permanently moved elsewhere and the database time zone has not updated
+appropriately.</p></li>
+<li><p>Set future queries in a single session to be from a new
+timezone:</p>
+<p><code class="python">SET timezone TO time_zone_name_or_abbrv;</code></p>
+<ul>
+<li>This will also adjust what values your
+<code class="python">localtime</code> or
+<code class="python">localtimestamp</code> report!</li>
+</ul></li>
+<li><p>Transform a single query to be reported in a different time
+zone:</p>
+<pre ><code class="pgsql">SELECT dt_col_name AT TIME ZONE tz_name_or_abbrv
+FROM tablename;</code></pre></li>
+</ul></li>
+</ul>
+</section>
+<section id="activity-1" class="slide level2">
+<h2>Activity</h2>
+<ul>
+<li>Using the taxi rides dataset, see if you can:
+<ul>
+<li>Compute the number of rides given each hour of the day</li>
+<li>Compute the average cost of rides over each day of the month</li>
+<li>Compute the median cost of rides over each day of the week</li>
+<li>Compute the average duration of each ride over each hour of the
+day</li>
+</ul></li>
+<li>Groups:
+<ul>
+<li>Jullian and Karol</li>
+<li>Maribel and Rochelle</li>
+<li>Nina and Andrew</li>
+<li>Liam and Ellie</li>
+<li>Connor and Megan</li>
+</ul></li>
+</ul>
+</section>
+<section id="results-to-compare-against" class="slide level2">
+<h2>Results to compare against</h2>
+<p><img data-src="../images/taxi_datetime_activity_results.png"
+style="width:80.0%" /></p>
+<!--
+## Subqueries
+- A _subquery_ is simply a query embedded within another piece of SQL
+- Commonly used to prepare some data or compute a value to be used by the surrounding SQL
+- We have already seen very simple versions
+  - Creating a new table, for example
+    
+  ```pgsql
+  CREATE TABLE new_table AS (
+    SELECT * FROM og_table
+  );
+  ```
+- Often, you could have saved the subquery as its own table and then used that directly, but not always
+
+
+## Common Uses of Subqueries
+- Computing a single value to use in comparisons
+- Computing a single column or list of values to use either directly in a table or in comparisons
+- Performing "join-like" operations (potentially in a more flexible manner)
+- Filtering one table based on the contents of another table
+- Otherwise combining operations that would otherwise have taken several steps
+
+
+## Filter on single value
+- Think back to HW3 where you needed to filter out all the outlier taxi-ride speeds
+  - There you had to compute the quartiles, the whisker edges, and then filter directly by typing that number back in
+- Subqueries can combine those steps! You can directly compare a value to the subquery output **so long as the query outputs only a single value**
+
+```{.pgsql style='font-size:1em'}
+SELECT *
+FROM tablename
+WHERE colname > (
+  SELECT avg(colname2)
+  FROM tablename2
+);
+```
+
+## Derived Tables
+- You can use the output of a subquery anywhere you would normally reference a table name
+- Such a table is then called a _derived table_
+- You **must** give such subqueries a table alias, else you have no way to refer to them
+
+```pgsql
+SELECT *
+FROM (
+  SELECT col1, col2
+  FROM tablename
+) AS mytable; -- Worlds most boring table alias
+```
+
+## Repeating Column Values
+- Sometimes it is very useful to have a constant value assigned to an entire column
+  - We can't just use an aggregate function (or similar) though, else we get mismatched column lengths
+- You can include a subquery _in your selected columns_ if it outputs only a **single value**
+  - That value will be propagated to all the rows
+- Give it an alias so the column heading has some meaning!
+
+```{.pgsql style='font-size:.9em'}
+SELECT
+  col1,
+  col2,
+  (SELECT avg(col2) FROM tablename2) as const_value
+FROM tablename;
+```
+
+
+## Subquery Expressions
+- Can also use subqueries to filter based on whether certain content is present within the subquery output
+- Combinations of a keyword followed by the subquery
+  - `expr IN (subquery)` and `expr NOT IN (subquery)`
+  - `EXISTS (subquery)` and `NOT EXISTS (subquery)`
+  - `expr op ANY (subquery)`
+  - `expr op ALL (subquery)`
+- `expr` is a column name or value, and `op` is a boolean operator (`=,>,>=`,etc)
+- All subquery expressions are evaluated in short-circuit mode: they will return an answer as soon as they can
+
+
+## IN Subquery
+- Will check to see if a term appears anywhere in the subquery output
+- The subquery must output a **single column** (though it could be empty)
+- `NOT IN` just reverses the situation
+- **Be careful of NULLs**
+  - `1 IN (1,2,3)` gives True
+  - `1 IN (2,3)` gives False
+  - `1 IN (NULL,2,3)` gives `NULL`
+  - Most dangerous with `NOT IN`, since `1 NOT IN (NULL,2,3)` will give `NULL`, and not True as you might expect
+
+
+## EXISTS Subquery
+- Checks just to see if the subquery has **any** rows in the output
+  - No expression to compare to, just looking at subquery output
+- The _contents_ of the subquery do not matter at all, so a simple `SELECT 1 FROM ...` is usually used
+- To be useful, the subquery is frequently what is called a _correlated subquery_, where it references the table in the outer query
+  - These types of subqueries can **not** be run in isolation
+
+```{.pgsql style='font-size:.9em'}
+SELECT col1, col2
+FROM table1
+WHERE EXISTS (
+  SELECT 1
+  FROM table2
+  WHERE table1.col1 = table2.col2
+);
+```
+
+
+## ANY and ALL
+- At times you don't want to see if a value is _in_ the subquery output, but rather how it _compares_ to the output
+- A boolean expression needs to return a single True or False though
+- `ANY` and `ALL` "broadcast" the boolean comparison across all the subquery rows
+  - `ANY` will return True if _any_ of the rows evaluate to True with the expression
+  - `ALL` will only return True if _all_ of the rows evaluate to True with the expression
+- `expr = ANY (subquery)` is thus identical to `expr IN (subquery)`
+```{.pgsql style='font-size:.9em'}
+SELECT col1
+FROM table1
+WHERE col1 < ALL ( SELECT col2
+                   FROM table2);
+```
+
+## Subqueries vs Joins
+- You may have realized that subqueries can do many similar things to what we used joins for!
+- When should each be used?
+  - Subqueries are great when you only need information from a single table, but what information depends on another table
+  - Joins are necessary when you need information from multiple tables
+- Historically, most RDMS were better optimized for joins, but many have improved substantially in recent years for subqueries
+  - If in doubt, use the form that makes the most sense for what you _semantically_ want to accomplish. You can always convert it later if better optimization is needed and could be achieved
+
+
+## Be careful!
+- It can be pretty easy to leap off the deep end with subqueries
+- Always keep in mind what you want the subquery to achieve, and test it individually to make sure it is doing what you expect
+  - Use them where they fit the needs of the situation
+  - A nice aspect of subqueries is that you can work from the "bottom-up", starting with smaller subqueries you know and building on them
+- **Organize your queries nicely!**
+  - This becomes even more important with subqueries
+
+
+## Pair Activity!
+- I've prepped a simple grades database [here](../activity_data/assignment_submission.sql) that you can download and run the sql file to create a `mar09` schema in your database of choice which will contain three common tables: `roster`, `assignments`, `submissions`
+- See if you can answer the following **without using joins** and only subqueries (as practice).
+  - Which student(s) have turned in _nothing_?
+  - Which assignment name has the worst scored average overall?
+  - Which students scored below average on every quiz?
+- Pairings
+  - Karol and Jullian
+  - Megan and Rochelle
+  - Nina and Ellie
+  - Andrew and Liam
+  - Maribel and Connor
+
+## Common Table Expressions
+- Sometimes you may want to use the same derived tables multiple places in a query
+- You could copy and paste those subqueries, but there is a better way
+- _Common Table Expressions_ or CTEs are a way for you to define up front a derived table that can be referenced anywhere in the rest of the query
+- To do so, you use a `WITH` keyword:
+```pgsql
+WITH
+  derived_table_name (new_col_names) AS (
+    subquery
+  )
+SELECT ...
+```
+
+## CTE Details
+- The number of columns returned by your subquery **must** match the number of column names you initially define
+  - If you aren't going to rename the columns, you do not even really need to include the new column names, but it can be nice for clarity
+- You do not need to include data types, as these will be inherited from the subquery columns
+- You can include multiple derived tables in the CTE statement, separated with a comma
+- Good use of CTE's can help clarify and simplify queries
+  - _Especially_ if you have a subquery that you need to reference a few times, use a CTE!
+-->
+</section>
+    </div>
+  </div>
+
+  <script src="../html_srcs/revealjs/dist/reveal.js"></script>
+
+  // reveal.js plugins
+  <script src="../html_srcs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../html_srcs/revealjs/plugin/search/search.js"></script>
+  <script src="../html_srcs/revealjs/plugin/zoom/zoom.js"></script>
+  // Added plugins
+  <script src="../html_srcs/revealjs/../plugin/chart/Chart.min.js"></script>
+  <script src="../html_srcs/revealjs/../plugin/chart/plugin.js"></script>
+  <script src="../html_srcs/revealjs/../plugin/chalkboard/plugin.js"></script>
+  <script src="../html_srcs/revealjs/../plugin/menu/menu.js"></script>
+  <script src="../html_srcs/revealjs/../other_plugins/reveal.js-d3/reveald3.js"></script>
+  <script src="../html_srcs/revealjs/plugin/math/math.js"></script>
+  <script src="../html_srcs/revealjs/plugin/highlight/highlight.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+		//autoAnimateEasing: 'ease-in',
+		//autoAnimateDuration: 1.0,
+		//autoAnimateUnmatched: false,
+        // Display controls in the bottom right corner
+        controls: true,
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: true,
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'bottom-right',
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+        // Display a presentation progress bar
+        progress: true,
+        // Display the page number of the current slide
+        slideNumber: true,
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+        // Push each slide change to the browser history
+        history: true,
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+        // Enable the slide overview mode
+        overview: true,
+        // Vertical centering of slides
+        center: false,
+        // Enables touch navigation on devices with touch input
+        touch: true,
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'default',
+        // Turns fragments on and off globally
+        fragments: true,
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: true,
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+        // Global override for autoplaying embedded media (video/audio/iframe)
+        // - null: Media will only autoplay if data-autoplay is present
+        // - true: All media will autoplay, regardless of individual setting
+        // - false: No media will autoplay, regardless of individual setting
+        autoPlayMedia: null,
+        // Global override for preloading lazy-loaded iframes
+        // - null: Iframes with data-src AND data-preload will be loaded when within
+        //   the viewDistance, iframes with only data-src will be loaded when visible
+        // - true: All iframes with data-src will be loaded when within the viewDistance
+        // - false: All iframes with data-src will be loaded only when visible
+        preloadIframes: null,
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+        // Transition style
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        // Transition speed
+        transitionSpeed: 'default', // default/fast/slow
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'fade', // none/fade/slide/convex/concave/zoom
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1920,
+        height: 1200,
+        // The display mode that will be used to show slides
+        display: 'block',
+		math: {
+		  <!--mathjax: '../html_srcs/reveal.js/plugin/math/mathjax/tex-mml-chtml.js',-->
+		  <!--config: 'tex-mml-chtml',-->
+		  <!--tex2jax: {-->
+			<!--inlineMath: [['\\(','\\)']],-->
+			<!--displayMath: [['\\[','\\]']],-->
+			<!--balanceBraces: true,-->
+			<!--processEscapes: false,-->
+			<!--processRefs: true,-->
+			<!--processEnvironments: true,-->
+			<!--preview: 'TeX',-->
+			<!--skipTags: ['script','noscript','style','textarea','pre','code'],-->
+			<!--ignoreClass: 'tex2jax_ignore',-->
+			<!--processClass: 'tex2jax_process'-->
+		  <!--},-->
+		  CommonHTML: {scale: 80},
+		},
+	reveald3: {
+			runLastState: true, // true/false, default: true
+			onSlideChangedDelay: 200,
+			mapPath: false, // true / false / "spefific/path/as/string", default: false
+			tryFallbackURL: true, // true/false, default false
+			disableCheckFile: false, //default false
+		 },
+
+        // reveal.js plugins
+        plugins: [
+		  RevealMath,
+          RevealHighlight,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom,
+		  RevealChart,
+		  RevealChalkboard,
+          RevealMenu,
+          Reveald3,
+        ],
+		chalkboard: {
+          boardmarkerWidth: 4,
+          chalkWidth: 7,
+          boardmarkers : [
+                  { color: 'rgba(46,52,64,1)',    cursor: 'url(' + path + 'img/boardmarker-black.png), auto'},
+                  { color: 'rgba(94,129,172,1)',  cursor: 'url(' + path + 'img/boardmarker-blue.png), auto'},
+                  { color: 'rgba(191,97,106,1)',  cursor: 'url(' + path + 'img/boardmarker-red.png), auto'},
+                  { color: 'rgba(163,190,140,1)', cursor: 'url(' + path + 'img/boardmarker-green.png), auto'},
+                  { color: 'rgba(208,135,112,1)', cursor: 'url(' + path + 'img/boardmarker-orange.png), auto'},
+                  { color: 'rgba(180,142,173,1)', cursor: 'url(' + path + 'img/boardmarker-purple.png), auto'},
+                  { color: 'rgba(235,203,139,1)', cursor: 'url(' + path + 'img/boardmarker-yellow.png), auto'}
+          ],
+          chalks: [
+                  { color: 'rgba(216,222,223,0.5)',cursor: 'url(' + path + 'img/chalk-white.png), auto'},
+                  { color: 'rgba(94,129,172,0.5)', cursor: 'url(' + path + 'img/chalk-blue.png), auto'},
+                  { color: 'rgba(191,97,106,0.5)', cursor: 'url(' + path + 'img/chalk-red.png), auto'},
+                  { color: 'rgba(163,190,140,0.5)',cursor: 'url(' + path + 'img/chalk-green.png), auto'},
+                  { color: 'rgba(208,135,112,0.5)',cursor: 'url(' + path + 'img/chalk-orange.png), auto'},
+                  { color: 'rgba(180,142,173,0.5)',cursor: 'url(' + path + 'img/chalk-purple.png), auto'},
+                  { color: 'rgba(235,203,139,0.5)',cursor: 'url(' + path + 'img/chalk-yellow.png), auto'}
+          ]
+		},
+		dependencies: [
+            // { src: "../html_srcs/revealjs/plugin/title-footer/title-footer.js", async: true, callback: function() { title_footer.initialize({css:"../html_srcs/revealjs/plugin/title-footer/title-footer.css"}); } },
+            //{ src: "../html_srcs/revealjs/plugin/d3/reveald3.js" },
+		],
+      });
+    </script>
+    </body>
+</html>

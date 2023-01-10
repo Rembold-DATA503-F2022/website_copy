@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>comp on Jeds Digital Home</title>
+    <link>/tags/comp/</link>
+    <description>Recent content in comp on Jeds Digital Home</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 29 Aug 2018 00:00:00 +0000</lastBuildDate><atom:link href="/tags/comp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Computation</title>
+      <link>/classes/phys345/computation/</link>
+      <pubDate>Wed, 29 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/phys345/computation/</guid>
+      <description>
+Learning Sympy Visualizing Data Numerical Fields Accompanying Image Help with Euler Magnetic Field Creating Animations in Matplotlib </description>
+    </item>
+    
+    <item>
+      <title>Computation Guides</title>
+      <link>/classes/phys339/guides/</link>
+      <pubDate>Wed, 29 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/classes/phys339/guides/</guid>
+      <description>
+Guide to Euler-Cromer Method Guide to Scipy&#39;s Odeint Guide to plotting with Matplotlib Guide to plotting with Bokeh Guide to Sympy Guide to Animation in Matplotlib Guide to Numeric Roots </description>
+    </item>
+    
+    <item>
+      <title>Computation Guides</title>
+      <link>/resources/python_guides/guides/</link>
+      <pubDate>Wed, 29 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/resources/python_guides/guides/</guid>
+      <description>
+Guide to Euler-Cromer Method Guide to Scipy&#39;s Odeint Guide to plotting with Matplotlib Guide to plotting with Bokeh Guide to Sympy Guide to Animation in Matplotlib </description>
+    </item>
+    
+  </channel>
+</rss>
